@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8" />
     <title>ログイン＆位置確認</title>
 </head>
+
 <body onload="init()">
     <div id="login-screen">
         <h2>ログイン</h2>
@@ -100,8 +102,8 @@
             const a =
                 Math.sin(dLat / 2) ** 2 +
                 Math.cos(lat1 * toRad) *
-                    Math.cos(lat2 * toRad) *
-                    Math.sin(dLng / 2) ** 2;
+                Math.cos(lat2 * toRad) *
+                Math.sin(dLng / 2) ** 2;
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c;
         }
@@ -143,8 +145,8 @@
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
                     const locationText = distance < 100 ? "学校内" : "学校外";
 
-                    // 出席記録を取得・更新
-                    const attendance = JSON.parse(localStorage.getItem("ATTENDANCE") || "{}");
+                    // 出席記録を取得・配列形式に（なければ空配列）
+                    const attendance = JSON.parse(localStorage.getItem("ATTENDANCE") || "[]");
 
                     const now = new Date();
                     const timeStr = now.getFullYear() + "-" +
@@ -153,12 +155,15 @@
                         String(now.getHours()).padStart(2, '0') + ":" +
                         String(now.getMinutes()).padStart(2, '0');
 
-                    attendance[username] = {
+                    // 新しい出席データを追加
+                    attendance.push({
+                        username: username,
                         status: "出席済み",
                         time: timeStr,
                         location: locationText
-                    };
+                    });
 
+                    // 保存
                     localStorage.setItem("ATTENDANCE", JSON.stringify(attendance));
 
                     document.getElementById("attendanceResult").textContent =
@@ -169,6 +174,8 @@
                 }
             );
         }
+
     </script>
 </body>
+
 </html>
