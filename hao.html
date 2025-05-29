@@ -141,8 +141,13 @@
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
-                    const locationText = distance < 100 ? "学校内" : "学校外";
 
+                    if (distance >= 100) {
+                        alert("学校外では出席登録できません。");
+                        return;
+                    }
+
+                    const locationText = "学校内";
                     const now = new Date();
                     const timeStr = now.getFullYear() + "-" +
                         String(now.getMonth() + 1).padStart(2, '0') + "-" +
@@ -164,8 +169,8 @@
                     document.getElementById("attendanceResult").textContent =
                         `出席完了：${username}（${locationText}・${timeStr}）`;
 
-                    // ✅ サーバーにユーザー名だけ送信（必要に応じてURLを変更）
-                    fetch("https://example.com/attendance", {
+                    // サーバー送信
+                    fetch("https://prod-01.japaneast.logic.azure.com:443/workflows/8838d39a55a34cd6b596c77d01d3041c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=HIq4VSXdHQUvmb1MVAFVnsYVencXJOBleZDoExKHMoo", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
