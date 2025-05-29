@@ -2,10 +2,67 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ログイン＆位置確認</title>
+    <style>
+        body {
+            font-family: 'Helvetica', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+        }
+        h2, h3 {
+            text-align: center;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            background-color: #007BFF;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            margin: 10px 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output, #attendanceResult {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+        }
+        .logout-btn:hover {
+            background-color: #a71d2a;
+        }
+    </style>
 </head>
 <body onload="init()">
-    <div id="login-screen">
+    <div class="container" id="login-screen">
         <h2>ログイン</h2>
         <input type="text" id="username" placeholder="ユーザー名" />
         <input type="password" id="password" placeholder="パスワード" />
@@ -16,12 +73,12 @@
         <button onclick="register()">登録</button>
     </div>
 
-    <div id="main-screen" style="display:none;">
+    <div class="container" id="main-screen" style="display:none;">
         <h2>出席確認</h2>
         <button onclick="save()">出席登録</button>
         <p id="attendanceResult"></p>
         <p class="output">位置情報を取得中...</p>
-        <button onclick="logout()">ログアウト</button>
+        <button class="logout-btn" onclick="logout()">ログアウト</button>
     </div>
 
     <script>
@@ -169,7 +226,6 @@
                     document.getElementById("attendanceResult").textContent =
                         `出席完了：${username}（${locationText}・${timeStr}）`;
 
-                    // サーバー送信
                     fetch("https://prod-01.japaneast.logic.azure.com:443/workflows/8838d39a55a34cd6b596c77d01d3041c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=HIq4VSXdHQUvmb1MVAFVnsYVencXJOBleZDoExKHMoo", {
                         method: "POST",
                         headers: {
