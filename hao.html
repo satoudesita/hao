@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8" />
     <title>ログイン＆位置確認</title>
 </head>
-
 <body onload="init()">
     <div id="login-screen">
         <h2>ログイン</h2>
@@ -77,21 +75,16 @@
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-screen").style.display = "block";
             getLocation();
+
+            const user = localStorage.getItem("loggedInUser");
+            if (user) {
+                document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
+            }
         }
 
         function logout() {
             localStorage.removeItem("loggedInUser");
             location.reload();
-        }
-
-        function save() {
-            const username = localStorage.getItem("loggedInUser");
-            if (!username) {
-                alert("ログインされていません");
-                return;
-            }
-            document.getElementById("attendanceResult").textContent =
-                `出席完了：${username}`;
         }
 
         function init() {
@@ -124,15 +117,10 @@
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
-                    if (distance < 100) {
-                        document.querySelector(
-                            ".output"
-                        ).textContent = `距離: ${Math.ceil(distance)}m 学校の中にいます`;
-                    } else {
-                        document.querySelector(
-                            ".output"
-                        ).textContent = `距離: ${Math.ceil(distance)}m 学校の外にいます`;
-                    }
+                    const message = distance < 100
+                        ? `距離: ${Math.ceil(distance)}m 学校の中にいます`
+                        : `距離: ${Math.ceil(distance)}m 学校の外にいます`;
+                    document.querySelector(".output").textContent = message;
                 },
                 error => {
                     document.querySelector(".output").textContent =
@@ -140,7 +128,47 @@
                 }
             );
         }
+
+        function save() {
+            const username = localStorage.getItem("loggedInUser");
+            if (!username) {
+                alert("ログインされていません");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const distance = calculateDistance(lat, lng, targetLat, targetLng);
+                    const locationText = distance < 100 ? "学校内" : "学校外";
+
+                    // 出席記録を取得・更新
+                    const attendance = JSON.parse(localStorage.getItem("ATTENDANCE") || "{}");
+
+                    const now = new Date();
+                    const timeStr = now.getFullYear() + "-" +
+                        String(now.getMonth() + 1).padStart(2, '0') + "-" +
+                        String(now.getDate()).padStart(2, '0') + " " +
+                        String(now.getHours()).padStart(2, '0') + ":" +
+                        String(now.getMinutes()).padStart(2, '0');
+
+                    attendance[username] = {
+                        status: "出席済み",
+                        time: timeStr,
+                        location: locationText
+                    };
+
+                    localStorage.setItem("ATTENDANCE", JSON.stringify(attendance));
+
+                    document.getElementById("attendanceResult").textContent =
+                        `出席完了：${username}（${locationText}・${timeStr}）`;
+                },
+                error => {
+                    alert("位置情報が取得できませんでした: " + error.message);
+                }
+            );
+        }
     </script>
 </body>
-
 </html>
