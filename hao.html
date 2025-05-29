@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8" />
     <title>ログイン＆位置確認</title>
 </head>
-
 <body onload="init()">
     <div id="login-screen">
         <h2>ログイン</h2>
@@ -145,9 +143,6 @@
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
                     const locationText = distance < 100 ? "学校内" : "学校外";
 
-                    // 出席記録を取得・配列形式に（なければ空配列）
-                    const attendance = JSON.parse(localStorage.getItem("ATTENDANCE") || "[]");
-
                     const now = new Date();
                     const timeStr = now.getFullYear() + "-" +
                         String(now.getMonth() + 1).padStart(2, '0') + "-" +
@@ -155,7 +150,8 @@
                         String(now.getHours()).padStart(2, '0') + ":" +
                         String(now.getMinutes()).padStart(2, '0');
 
-                    // 新しい出席データを追加
+                    const attendance = JSON.parse(localStorage.getItem("ATTENDANCE") || "[]");
+
                     attendance.push({
                         username: username,
                         status: "出席済み",
@@ -163,19 +159,35 @@
                         location: locationText
                     });
 
-                    // 保存
                     localStorage.setItem("ATTENDANCE", JSON.stringify(attendance));
 
                     document.getElementById("attendanceResult").textContent =
                         `出席完了：${username}（${locationText}・${timeStr}）`;
+
+                    // ✅ サーバーにユーザー名だけ送信（必要に応じてURLを変更）
+                    fetch("https://example.com/attendance", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ username: username })
+                    })
+                    .then(res => {
+                        if (res.ok) {
+                            console.log("送信成功");
+                        } else {
+                            console.error("送信エラー:", res.status);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("送信時エラー:", error);
+                    });
                 },
                 error => {
                     alert("位置情報が取得できませんでした: " + error.message);
                 }
             );
         }
-
     </script>
 </body>
-
 </html>
