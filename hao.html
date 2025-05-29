@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ログイン＆位置確認</title>
+</head>
+<body onload="init()">
+<div id="login-screen">
+<h2>ログイン</h2>
+<input type="text" id="username" placeholder="ユーザー名">
+<input type="password" id="password" placeholder="パスワード">
+<button onclick="login()">ログイン</button>
+<h3>新規登録</h3>
+<input type="text" id="newUsername" placeholder="新規ユーザー名">
+<input type="password" id="newPassword" placeholder="新規パスワード">
+<button onclick="register()">登録</button>
+</div>
+<div id="main-screen" style="display:none;">
+<h2>出席確認</h2>
+<input type="number" class="index" placeholder="出席番号">
+<button onclick="save()">出席番号を登録</button>
+<p class="output">位置情報を取得中...</p>
+<button onclick="logout()">ログアウト</button>
+</div>
+<script>
+       const targetLat = 33.244765;
+       const targetLng = 131.62293;
+       async function hashPassword(password) {
+           const enc = new TextEncoder().encode(password);
+           const hashBuffer = await crypto.subtle.digest("SHA-256", enc);
+           return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+       }
+       function getUsers() {
+           return JSON.parse(localStorage.getItem("USERS") || "{}");
+       }
+       function saveUsers(users) {
+           localStorage.setItem("USERS", JSON.stringify(users));
+       }
+       async function register() {
+           const newUser = document.getElementById("newUsername").value;
+           const newPass = document.getElementById("newPassword").value;
+           const users = getUsers();
+           if (users[newUser]) {
+               alert("すでに登録されています");
+               return;
+           }
+           const hashed = await hashPassword(newPass);
+           users[newUser] = hashed;
+           saveUsers(users);
+           alert("登録完了");
+       }
+       async function login() {
+           const username = document.getElementById("username").value;
+           const password = document.getElementById("password").value;
+           const users = getUsers();
+           const hashed = await hashPassword(password);
+           if (users[username] && users[username] === hashed) {
+               localStorage.setItem("loggedInUser", username);
+               showMain();
+           } else {
+               alert("ユーザー名またはパスワードが違います");
+           }
+       }
+       function showMain() {
+           document.getElementById("login-screen").style.display = "none";
+           document.getElementById("main-screen").style.display = "block";
+           setInputValue();
+           getLocation();
+       }
+       function logout() {
+           localStorage.removeItem("loggedInUser");
+           location.reload();
+       }
+       function save() {
+           const index = Number(document.querySelector("input.index").value);
+           localStorage.setItem("index", index);
+           alert("出席番号を保存しました");
+       }
+       function setInputValue() {
+           const index = localStorage.getItem("index");
+           document.querySelector("input.index").value = index || "";
+       }
+       function init() {
+           const user = localStorage.getItem("loggedInUser");
+           if (user) showMain();
+       }
+       function calculateDistance(lat1, lng1, lat2, lng2) {
+           const R = 6371e3;
+           const toRad = Math.PI / 180;
+           const dLat = (lat2 - lat1) * toRad;
+           const dLng = (lng2 - lng1) * toRad;
+           const a = Math.sin(dLat / 2) ** 2 +
+                     Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad) *
+                     Math.sin(dLng / 2) ** 2;
+           const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+           return R * c;
+       }
+       function getLocation() {
+           if (!navigator.geolocation) {
+               document.querySelector(".output").textContent = "このブラウザでは位置情報が使えません。";
+               return;
+           }
+           navigator.geolocation.getCurrentPosition(
+               (position) => {
+                   const lat = position.coords.latitude;
+                   const lng = position.coords.longitude;
+                   const distance = calculateDistance(lat, lng, targetLat, targetLng);
+                   if (distance < 100) {
+                       document.querySelector(".output").textContent = `距離: ${Math.ceil(distance)}m 学校の中にいます`;
+                   } else {
+                       document.querySelector(".output").textContent = `距離: ${Math.ceil(distance)}m 学校の外にいます`;
+                   }
+               },
+               (error) => {
+                   document.querySelector(".output").textContent =
+                       `位置情報の取得に失敗: ${error.message}`;
+               }
+           );
+       }
+</script>
+</body>
+</html>
