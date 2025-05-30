@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン＆位置確認</title>
+    <style>
+        body {
+            font-family: 'Helvetica', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+        }
+        h2, h3 {
+            text-align: center;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            background-color: #007BFF;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            margin: 10px 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output, #attendanceResult {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+        }
+        .logout-btn:hover {
+            background-color: #a71d2a;
+        }
+    </style>
+</head>
+<body onload="init()">
+    <div class="container" id="login-screen">
+        <h2>ログイン</h2>
+        <input type="text" id="username" placeholder="ユーザー名" />
+        <input type="password" id="password" placeholder="パスワード" />
+        <button onclick="login()">ログイン</button>
+        <h3>新規登録</h3>
+        <input type="text" id="newUsername" placeholder="新規ユーザー名" />
+        <input type="password" id="newPassword" placeholder="新規パスワード" />
+        <button onclick="register()">登録</button>
+    </div>
+
+    <div class="container" id="main-screen" style="display:none;">
+        <h2>出席確認</h2>
+        <button onclick="save()">出席登録</button>
+        <p id="attendanceResult"></p>
+        <p class="output">位置情報を取得中...</p>
+        <button class="logout-btn" onclick="logout()">ログアウト</button>
+    </div>
+
+    <script>
+        //学校の座標
+        const targetLat = 33.244765;
+        const targetLng = 131.62293;
+
+        async function hashPassword(password) {
+            const enc = new TextEncoder().encode(password);
+            const hashBuffer = await crypto.subtle.digest("SHA-256", enc);
+            return Array.from(new Uint8Array(hashBuffer))
+                .map(b => b.toString(16).padStart(2, "0"))
+                .join("");
+        }
+
+        function getUsers() {
+            return JSON.parse(localStorage.getItem("USERS") || "{}");
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem("USERS", JSON.stringify(users));
+        }
+
+        async function register() {
+            const newUser = document.getElementById("newUsername").value;
+            const newPass = document.getElementById("newPassword").value;
+            const users = getUsers();
+            if (users[newUser]) {
+                alert("すでに登録されています");
+                return;
+            }
+            const hashed = await hashPassword(newPass);
+            users[newUser] = hashed;
+            saveUsers(users);
+            alert("登録完了");
+        }
+
+        async function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const users = getUsers();
+            const hashed = await hashPassword(password);
+            if (users[username] && users[username] === hashed) {
+                localStorage.setItem("loggedInUser", username);
+                showMain();
+            } else {
+                alert("ユーザー名またはパスワードが違います");
+            }
+        }
+
+        function showMain() {
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("main-screen").style.display = "block";
+            getLocation();
+
+            const user = localStorage.getItem("loggedInUser");
+            if (user) {
+                document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("loggedInUser");
+            location.reload();
+        }
+
+        function init() {
+            const user = localStorage.getItem("loggedInUser");
+            if (user) showMain();
+        }
+
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371e3;
+            const toRad = Math.PI / 180;
+            const dLat = (lat2 - lat1) * toRad;
+            const dLng = (lng2 - lng1) * toRad;
+            const a =
+                Math.sin(dLat / 2) ** 2 +
+                Math.cos(lat1 * toRad) *
+                Math.cos(lat2 * toRad) *
+                Math.sin(dLng / 2) ** 2;
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function getLocation() {
+            if (!navigator.geolocation) {
+                document.querySelector(".output").textContent =
+                    "このブラウザでは位置情報が使えません。";
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const distance = calculateDistance(lat, lng, targetLat, targetLng);
+                    const message = distance < 100
+                        ? `距離: ${Math.ceil(distance)}m 学校の中にいます`
+                        : `距離: ${Math.ceil(distance)}m 学校の外にいます`;
+                    document.querySelector(".output").textContent = message;
+                },
+                error => {
+                    document.querySelector(".output").textContent =
+                        `位置情報の取得に失敗: ${error.message}`;
+                }
+            );
+        }
+
+        function save() {
+            const username = localStorage.getItem("loggedInUser");
+            if (!username) {
+                alert("ログインされていません");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const distance = calculateDistance(lat, lng, targetLat, targetLng);
+
+                    if (distance >= 100) {
+                        alert("学校外では出席登録できません。");
+                        return;
+                    }
+
+                    const locationText = "学校内";
+                    const now = new Date();
+                    const timeStr = now.getFullYear() + "-" +
+                        String(now.getMonth() + 1).padStart(2, '0') + "-" +
+                        String(now.getDate()).padStart(2, '0') + " " +
+                        String(now.getHours()).padStart(2, '0') + ":" +
+                        String(now.getMinutes()).padStart(2, '0');
+
+                    const attendance = JSON.parse(localStorage.getItem("ATTENDANCE") || "[]");
+
+                    attendance.push({
+                        username: username,
+                        status: "出席済み",
+                        time: timeStr,
+                        location: locationText
+                    });
+
+                    localStorage.setItem("ATTENDANCE", JSON.stringify(attendance));
+
+                    document.getElementById("attendanceResult").textContent =
+                        `出席完了：${username}（${locationText}・${timeStr}）`;
+
+                    fetch("https://prod-01.japaneast.logic.azure.com:443/workflows/8838d39a55a34cd6b596c77d01d3041c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=HIq4VSXdHQUvmb1MVAFVnsYVencXJOBleZDoExKHMoo", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ username: username })
+                    })
+                    .then(res => {
+                        if (res.ok) {
+                            console.log("送信成功");
+                        } else {
+                            console.error("送信エラー:", res.status);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("送信時エラー:", error);
+                    });
+                },
+                error => {
+                    alert("位置情報が取得できませんでした: " + error.message);
+                }
+            );
+        }
+    </script>
+</body>
+</html>
