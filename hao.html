@@ -53,6 +53,11 @@
             margin-top: 10px;
             font-size: 14px;
         }
+        .output1, #attendanceResult {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
         .logout-btn {
             background-color: #dc3545;
         }
@@ -84,13 +89,23 @@
         <button onclick="save('出席')">出席登録</button>
         <p id="attendanceResult"></p>
         <p class="output">位置情報を取得中...</p>
+        <button onclick="goBack()">戻る</button> <!-- 戻るボタン -->
+    </div>
+
+    <div class="container" id="late-screen" style="display:none;">
+        <h2>遅刻確認</h2>
+        <input type="text" id="reason" placeholder="理由" />
+        <button onclick="savelate('遅刻')">遅刻登録</button>
+        <p id="attendanceResult"></p>
+        <p class="output1">位置情報を取得中...</p>
+        <button onclick="goBack()">戻る</button> <!-- 戻るボタン -->
     </div>
 
     <div class="container" id="select-screen" style="display:none;">
         <h2>選択画面</h2>
-        <p id="loggedInUserDisplay"></p> <!-- ログイン中のユーザー名を表示する要素 -->
+        <p id="loggedInUserDisplay"></p> 
         <button onclick="syusseki()">出席</button>
-        <button onclick="save('遅刻')">遅刻</button>
+        <button onclick="late()">遅刻</button>
         <p id="attendanceResult"></p>
         <button class="logout-btn" onclick="logout()">ログアウト</button>
         <button class="delete-btn" onclick="deleteAccount()">アカウント削除</button>
@@ -104,6 +119,21 @@
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-screen").style.display = "block";
             document.getElementById("select-screen").style.display = "none";
+
+            getLocation();
+
+            const user = localStorage.getItem("loggedInUser");
+            if (user) {
+                document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
+            }
+
+        }
+
+        function late(){
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("main-screen").style.display = "none";
+            document.getElementById("select-screen").style.display = "none";
+            document.getElementById("late-screen").style.display = "block";
 
             getLocation();
 
@@ -197,6 +227,8 @@
             if (!navigator.geolocation) {
                 document.querySelector(".output").textContent =
                     "このブラウザでは位置情報が使えません。";
+                document.querySelector(".output1").textContent =
+                    "このブラウザでは位置情報が使えません。";
                 return;
             }
             navigator.geolocation.getCurrentPosition(
@@ -208,9 +240,12 @@
                         ? `距離: ${Math.ceil(distance)}m 学校の中にいます`
                         : `距離: ${Math.ceil(distance)}m 学校の外にいます`;
                     document.querySelector(".output").textContent = message;
+                    document.querySelector(".output1").textContent = message;
                 },
                 error => {
                     document.querySelector(".output").textContent =
+                        `位置情報の取得に失敗: ${error.message}`;
+                    document.querySelector(".output1").textContent =
                         `位置情報の取得に失敗: ${error.message}`;
                 }
             );
@@ -220,6 +255,16 @@
             const username = localStorage.getItem("loggedInUser");
             if (!username) {
                 alert("ログインされていません");
+                return;
+            }
+
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+
+            // 8:10を超えた場合は出席登録を禁止
+            if (currentHour > 8 || (currentHour === 8 && currentMinute > 10)) {
+                alert("8:10を超えたため出席登録できません。");
                 return;
             }
 
@@ -235,7 +280,6 @@
                     }
 
                     const locationText = "学校内";
-                    const now = new Date();
                     const timeStr = now.getFullYear() + "-" +
                         String(now.getMonth() + 1).padStart(2, '0') + "-" +
                         String(now.getDate()).padStart(2, '0') + " " +
@@ -255,30 +299,75 @@
 
                     document.getElementById("attendanceResult").textContent =
                         `${statusType}完了：${username}（${locationText}・${timeStr}）`;
-
-                    fetch("https://prod-01.japaneast.logic.azure.com:443/workflows/8838d39a55a34cd6b596c77d01d3041c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=HIq4VSXdHQUvmb1MVAFVnsYVencXJOBleZDoExKHMoo", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({ username: username, status: statusType })
-                    })
-                    .then(res => {
-                        if (res.ok) {
-                            console.log(`${statusType}送信成功`);
-                        } else {
-                            console.error("送信エラー:", res.status);
-                        }
-                    })
-                    .catch(error => {
-                        console.error("送信時エラー:", error);
-                    });
                 },
                 error => {
                     alert("位置情報が取得できませんでした: " + error.message);
                 }
             );
         }
+
+        function savelate(statusType) {
+            const username = localStorage.getItem("loggedInUser");
+            const reason = document.getElementById("reason").value;
+
+            if (!username) {
+                alert("ログインされていません");
+                return;
+            }
+
+            const button = document.querySelector("#late-screen button");
+            button.textContent = "登録中...";
+            button.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const distance = calculateDistance(lat, lng, targetLat, targetLng);
+
+                    // 学校から100m以上離れている場合は遅刻登録を禁止
+                    if (distance >= 100) {
+                        alert("学校外では遅刻登録できません。");
+                        button.textContent = "遅刻登録失敗";
+                        button.disabled = false;
+                        return;
+                    }
+
+                    const locationText = "学校内";
+                    const now = new Date();
+                    const timeStr = now.getFullYear() + "-" +
+                        String(now.getMonth() + 1).padStart(2, '0') + "-" +
+                        String(now.getDate()).padStart(2, '0') + " " +
+                        String(now.getHours()).padStart(2, '0') + ":" +
+                        String(now.getMinutes()).padStart(2, '0');
+
+                    const attendance = JSON.parse(localStorage.getItem("ATTENDANCE") || "[]");
+
+                    attendance.push({
+                        username: username,
+                        status: statusType + "済み",
+                        time: timeStr,
+                        location: locationText,
+                        reason: reason
+                    });
+
+                    localStorage.setItem("ATTENDANCE", JSON.stringify(attendance));
+
+                    document.getElementById("attendanceResult").textContent =
+                        `${statusType}完了：${username}（${locationText}・${timeStr}・理由：${reason}）`;
+
+                    button.textContent = "遅刻登録完了";
+                    button.disabled = false;
+                },
+                error => {
+                    alert("位置情報が取得できませんでした: " + error.message);
+                    button.textContent = "遅刻登録失敗";
+                    button.disabled = false;
+                }
+            );
+        }
+
+
 
         function deleteAccount() {
             const username = localStorage.getItem("loggedInUser");
@@ -300,6 +389,12 @@
                 alert("アカウントを削除しました");
                 location.reload();
             }
+        }
+
+        function goBack() {
+            document.getElementById("main-screen").style.display = "none";
+            document.getElementById("late-screen").style.display = "none";
+            document.getElementById("select-screen").style.display = "block"; // 選択画面に戻る
         }
     </script>
 </body>
