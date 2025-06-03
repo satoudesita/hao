@@ -37,7 +37,7 @@
         button {
             width: 100%;
             background-color: #007BFF;
-            color: rgb(255, 255, 255);
+            color: white;
             padding: 12px;
             border: none;
             border-radius: 8px;
@@ -59,6 +59,12 @@
         .logout-btn:hover {
             background-color: #a71d2a;
         }
+        .delete-btn {
+            background-color: #ff6347;
+        }
+        .delete-btn:hover {
+            background-color: #cc4c39;
+        }
     </style>
 </head>
 <body onload="init()">
@@ -75,16 +81,38 @@
 
     <div class="container" id="main-screen" style="display:none;">
         <h2>出席確認</h2>
-        <button onclick="save()">出席登録</button>
+        <button onclick="save('出席')">出席登録</button>
         <p id="attendanceResult"></p>
         <p class="output">位置情報を取得中...</p>
+    </div>
+
+    <div class="container" id="select-screen" style="display:none;">
+        <h2>選択画面</h2>
+        <p id="loggedInUserDisplay"></p> <!-- ログイン中のユーザー名を表示する要素 -->
+        <button onclick="syusseki()">出席</button>
+        <button onclick="save('遅刻')">遅刻</button>
+        <p id="attendanceResult"></p>
         <button class="logout-btn" onclick="logout()">ログアウト</button>
+        <button class="delete-btn" onclick="deleteAccount()">アカウント削除</button>
     </div>
 
     <script>
-        //学校の座標
         const targetLat = 33.244765;
         const targetLng = 131.62293;
+
+        function syusseki(){
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("main-screen").style.display = "block";
+            document.getElementById("select-screen").style.display = "none";
+
+            getLocation();
+
+            const user = localStorage.getItem("loggedInUser");
+            if (user) {
+                document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
+            }
+
+        }
 
         async function hashPassword(password) {
             const enc = new TextEncoder().encode(password);
@@ -131,12 +159,13 @@
 
         function showMain() {
             document.getElementById("login-screen").style.display = "none";
-            document.getElementById("main-screen").style.display = "block";
-            getLocation();
+            document.getElementById("main-screen").style.display = "none";
+            document.getElementById("select-screen").style.display = "block";
 
             const user = localStorage.getItem("loggedInUser");
             if (user) {
                 document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
+                document.getElementById("loggedInUserDisplay").textContent = `ログイン中のユーザー: ${user}`; // select画面に表示
             }
         }
 
@@ -187,7 +216,7 @@
             );
         }
 
-        function save() {
+        function save(statusType) {
             const username = localStorage.getItem("loggedInUser");
             if (!username) {
                 alert("ログインされていません");
@@ -201,7 +230,7 @@
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
 
                     if (distance >= 100) {
-                        alert("学校外では出席登録できません。");
+                        alert("学校外では登録できません。");
                         return;
                     }
 
@@ -217,7 +246,7 @@
 
                     attendance.push({
                         username: username,
-                        status: "出席済み",
+                        status: statusType + "済み",
                         time: timeStr,
                         location: locationText
                     });
@@ -225,18 +254,18 @@
                     localStorage.setItem("ATTENDANCE", JSON.stringify(attendance));
 
                     document.getElementById("attendanceResult").textContent =
-                        `出席完了：${username}（${locationText}・${timeStr}）`;
+                        `${statusType}完了：${username}（${locationText}・${timeStr}）`;
 
                     fetch("https://prod-01.japaneast.logic.azure.com:443/workflows/8838d39a55a34cd6b596c77d01d3041c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=HIq4VSXdHQUvmb1MVAFVnsYVencXJOBleZDoExKHMoo", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
                         },
-                        body: JSON.stringify({ username: username })
+                        body: JSON.stringify({ username: username, status: statusType })
                     })
                     .then(res => {
                         if (res.ok) {
-                            console.log("送信成功");
+                            console.log(`${statusType}送信成功`);
                         } else {
                             console.error("送信エラー:", res.status);
                         }
@@ -249,6 +278,28 @@
                     alert("位置情報が取得できませんでした: " + error.message);
                 }
             );
+        }
+
+        function deleteAccount() {
+            const username = localStorage.getItem("loggedInUser");
+            if (!username) {
+                alert("ログインされていません");
+                return;
+            }
+
+            const users = getUsers();
+            if (!users[username]) {
+                alert("アカウントが見つかりません");
+                return;
+            }
+
+            if (confirm("本当にアカウントを削除しますか？")) {
+                delete users[username];
+                saveUsers(users);
+                localStorage.removeItem("loggedInUser");
+                alert("アカウントを削除しました");
+                location.reload();
+            }
         }
     </script>
 </body>
