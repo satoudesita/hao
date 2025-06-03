@@ -70,6 +70,23 @@
         .delete-btn:hover {
             background-color: #cc4c39;
         }
+        .user-icon-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        #userIcon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #ccc;
+        }
+
+        #userIcon:hover {
+            border-color: #007BFF;
+        }
     </style>
 </head>
 <body onload="init()">
@@ -109,6 +126,11 @@
         <p id="attendanceResult"></p>
         <button class="logout-btn" onclick="logout()">ログアウト</button>
         <button class="delete-btn" onclick="deleteAccount()">アカウント削除</button>
+    </div>
+
+    <div class="user-icon-container">
+        <img id="userIcon" src="default-avatar.png" alt="ユーザーアイコン" onclick="triggerPhotoUpload()" />
+        <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="uploadPhoto()" />
     </div>
 
     <script>
@@ -206,6 +228,10 @@
 
         function init() {
             const user = localStorage.getItem("loggedInUser");
+            const userPhoto = localStorage.getItem("userPhoto");
+            if (userPhoto) {
+                document.getElementById("userIcon").src = userPhoto; // 保存された写真を表示
+            }
             if (user) showMain();
         }
 
@@ -395,6 +421,34 @@
             document.getElementById("main-screen").style.display = "none";
             document.getElementById("late-screen").style.display = "none";
             document.getElementById("select-screen").style.display = "block"; // 選択画面に戻る
+        }
+
+        function triggerPhotoUpload() {
+            document.getElementById("photoUpload").click(); // ファイル選択ダイアログを開く
+        }
+
+        function uploadPhoto() {
+            const fileInput = document.getElementById("photoUpload");
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const photoData = e.target.result; // Base64エンコードされた画像データ
+                    document.getElementById("userIcon").src = photoData;
+                    localStorage.setItem("userPhoto", photoData); // ローカルストレージに保存
+                };
+                reader.readAsDataURL(file); // ファイルをBase64形式で読み込む
+            }
+        }
+
+        function init() {
+            const user = localStorage.getItem("loggedInUser");
+            const userPhoto = localStorage.getItem("userPhoto");
+            if (userPhoto) {
+                document.getElementById("userIcon").src = userPhoto; // 保存された写真を表示
+            }
+            if (user) showMain();
         }
     </script>
 </body>
