@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: 'Helvetica', sans-serif;
-            background-color: #e8f5e9; /* 緑系の背景色 */
+            background-color: #e8f5e9;
             margin: 0;
             padding: 0;
             display: flex;
@@ -25,13 +25,13 @@
         }
         h2, h3 {
             text-align: center;
-            color: #388e3c; /* 緑系の文字色 */
+            color: #388e3c; /
         }
         input {
             width: 100%;
             padding: 10px;
             margin: 8px 0;
-            border: 1px solid #a5d6a7; /* 緑系の枠線 */
+            border: 1px solid #a5d6a7;
             border-radius: 8px;
             box-sizing: border-box;
         }
@@ -47,42 +47,42 @@
             font-size: 16px;
         }
         button:hover {
-            background-color: #43a047; /* 濃い緑系のボタン色 */
+            background-color: #43a047;
         }
         .output, #attendanceResult {
             text-align: center;
             margin-top: 10px;
             font-size: 14px;
-            color: #388e3c; /* 緑系の文字色 */
+            color: #388e3c;
         }
         .logout-btn {
-            background-color: #ff7043; /* 赤系のログアウトボタン色 */
+            background-color: #ff7043;
         }
         .logout-btn:hover {
-            background-color: #e64a19; /* 濃い赤系のログアウトボタン色 */
+            background-color: #e64a19;
         }
         .delete-btn {
-            background-color: #ff7043; /* オレンジ系の削除ボタン色 */
+            background-color: #ff7043;
         }
         .delete-btn:hover {
-            background-color: #e64a19; /* 濃いオレンジ系の削除ボタン色 */
+            background-color: #e64a19;
         }
         .user-icon-container {
             position: absolute;
             top: 10px;
             left: 10px;
         }
-
+ 
         #userIcon {
             width: 50px;
             height: 50px;
             border-radius: 50%;
             cursor: pointer;
-            border: 2px solid #a5d6a7; /* 緑系の枠線 */
+            border: 2px solid #a5d6a7;
         }
-
+ 
         #userIcon:hover {
-            border-color: #66bb6a; /* 緑系の枠線色 */
+            border-color: #66bb6a;
         }
     </style>
 </head>
@@ -97,7 +97,7 @@
         <input type="password" id="newPassword" placeholder="新規パスワード" />
         <button onclick="register()">登録</button>
     </div>
-
+ 
     <div class="container" id="main-screen" style="display:none;">
         <h2>出席確認</h2>
         <button onclick="save('出席')">出席登録</button>
@@ -105,64 +105,64 @@
         <p class="output">位置情報を取得中...</p>
         <button onclick="goBack()">戻る</button> <!-- 戻るボタン -->
     </div>
-
+ 
     <div class="container" id="late-screen" style="display:none;">
         <h2>遅刻確認</h2>
         <input type="text" id="reason" placeholder="理由" />
         <button onclick="savelate('遅刻')">遅刻登録</button>
         <p id="attendanceResult"></p>
         <p class="output1">位置情報を取得中...</p>
-        <button onclick="goBack()">戻る</button> <!-- 戻るボタン -->
+        <button onclick="goBack()">戻る</button>
     </div>
-
+ 
     <div class="container" id="select-screen" style="display:none;">
         <h2>選択画面</h2>
-        <p id="loggedInUserDisplay"></p> 
+        <p id="loggedInUserDisplay"></p>
         <button onclick="syusseki()">出席</button>
         <button onclick="late()">遅刻</button>
         <p id="attendanceResult"></p>
         <button class="logout-btn" onclick="logout()">ログアウト</button>
         <button class="delete-btn" onclick="deleteAccount()">アカウント削除</button>
     </div>
-
+ 
     <div class="user-icon-container">
         <img id="userIcon" src="default-avatar.png" alt="ユーザーアイコン" onclick="triggerPhotoUpload()" />
         <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="uploadPhoto()" />
     </div>
-
+ 
     <script>
         const targetLat = 33.244765;
         const targetLng = 131.62293;
-
+ 
         function syusseki(){
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-screen").style.display = "block";
             document.getElementById("select-screen").style.display = "none";
-
+ 
             getLocation();
-
+ 
             const user = localStorage.getItem("loggedInUser");
             if (user) {
                 document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
             }
-
+ 
         }
-
+ 
         function late(){
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-screen").style.display = "none";
             document.getElementById("select-screen").style.display = "none";
             document.getElementById("late-screen").style.display = "block";
-
+ 
             getLocation();
-
+ 
             const user = localStorage.getItem("loggedInUser");
             if (user) {
                 document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
             }
-
+ 
         }
-
+ 
         async function hashPassword(password) {
             const enc = new TextEncoder().encode(password);
             const hashBuffer = await crypto.subtle.digest("SHA-256", enc);
@@ -170,15 +170,15 @@
                 .map(b => b.toString(16).padStart(2, "0"))
                 .join("");
         }
-
+ 
         function getUsers() {
             return JSON.parse(localStorage.getItem("USERS") || "{}");
         }
-
+ 
         function saveUsers(users) {
             localStorage.setItem("USERS", JSON.stringify(users));
         }
-
+ 
         async function register() {
             const newUser = document.getElementById("newUsername").value;
             const newPass = document.getElementById("newPassword").value;
@@ -192,7 +192,7 @@
             saveUsers(users);
             alert("登録完了");
         }
-
+ 
         async function login() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
@@ -205,24 +205,24 @@
                 alert("ユーザー名またはパスワードが違います");
             }
         }
-
+ 
         function showMain() {
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-screen").style.display = "none";
             document.getElementById("select-screen").style.display = "block";
-
+ 
             const user = localStorage.getItem("loggedInUser");
             if (user) {
                 document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
                 document.getElementById("loggedInUserDisplay").textContent = `ログイン中のユーザー: ${user}`; // select画面に表示
             }
         }
-
+ 
         function logout() {
             localStorage.removeItem("loggedInUser");
             location.reload();
         }
-
+ 
         function init() {
             const user = localStorage.getItem("loggedInUser");
             const userPhoto = localStorage.getItem("userPhoto");
@@ -231,7 +231,7 @@
             }
             if (user) showMain();
         }
-
+ 
         function calculateDistance(lat1, lng1, lat2, lng2) {
             const R = 6371e3;
             const toRad = Math.PI / 180;
@@ -245,7 +245,7 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c;
         }
-
+ 
         function getLocation() {
             if (!navigator.geolocation) {
                 document.querySelector(".output").textContent =
@@ -273,53 +273,53 @@
                 }
             );
         }
-
+ 
         function save(statusType) {
             const username = localStorage.getItem("loggedInUser");
             if (!username) {
                 alert("ログインされていません");
                 return;
             }
-
+ 
             const now = new Date();
             const currentHour = now.getHours();
             const currentMinute = now.getMinutes();
-
+ 
             // 8:10を超えた場合は出席登録を禁止
             if (currentHour > 8 || (currentHour === 8 && currentMinute > 10)) {
                 alert("8:10を超えたため出席登録できません。");
                 return;
             }
-
+ 
             navigator.geolocation.getCurrentPosition(
                 position => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
-
+ 
                     if (distance >= 100) {
                         alert("学校外では登録できません。");
                         return;
                     }
-
+ 
                     const locationText = "学校内";
                     const timeStr = now.getFullYear() + "-" +
                         String(now.getMonth() + 1).padStart(2, '0') + "-" +
                         String(now.getDate()).padStart(2, '0') + " " +
                         String(now.getHours()).padStart(2, '0') + ":" +
                         String(now.getMinutes()).padStart(2, '0');
-
+ 
                     const attendance = JSON.parse(localStorage.getItem("ATTENDANCE") || "[]");
-
+ 
                     attendance.push({
                         username: username,
                         status: statusType + "済み",
                         time: timeStr,
                         location: locationText
                     });
-
+ 
                     localStorage.setItem("ATTENDANCE", JSON.stringify(attendance));
-
+ 
                     document.getElementById("attendanceResult").textContent =
                         `${statusType}完了：${username}（${locationText}・${timeStr}）`;
                 },
@@ -328,34 +328,33 @@
                 }
             );
         }
-
+ 
         function savelate(statusType) {
             const username = localStorage.getItem("loggedInUser");
             const reason = document.getElementById("reason").value;
-
+ 
             if (!username) {
                 alert("ログインされていません");
                 return;
             }
-
+ 
             const button = document.querySelector("#late-screen button");
             button.textContent = "登録中...";
             button.disabled = true;
-
+ 
             navigator.geolocation.getCurrentPosition(
                 position => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
-
-                    // 学校から100m以上離れている場合は遅刻登録を禁止
+ 
                     if (distance >= 100) {
                         alert("学校外では遅刻登録できません。");
                         button.textContent = "遅刻登録失敗";
                         button.disabled = false;
                         return;
                     }
-
+ 
                     const locationText = "学校内";
                     const now = new Date();
                     const timeStr = now.getFullYear() + "-" +
@@ -363,9 +362,9 @@
                         String(now.getDate()).padStart(2, '0') + " " +
                         String(now.getHours()).padStart(2, '0') + ":" +
                         String(now.getMinutes()).padStart(2, '0');
-
+ 
                     const attendance = JSON.parse(localStorage.getItem("ATTENDANCE") || "[]");
-
+ 
                     attendance.push({
                         username: username,
                         status: statusType + "済み",
@@ -373,12 +372,12 @@
                         location: locationText,
                         reason: reason
                     });
-
+ 
                     localStorage.setItem("ATTENDANCE", JSON.stringify(attendance));
-
+ 
                     document.getElementById("attendanceResult").textContent =
                         `${statusType}完了：${username}（${locationText}・${timeStr}・理由：${reason}）`;
-
+ 
                     button.textContent = "遅刻登録完了";
                     button.disabled = false;
                 },
@@ -389,22 +388,22 @@
                 }
             );
         }
-
-
-
+ 
+ 
+ 
         function deleteAccount() {
             const username = localStorage.getItem("loggedInUser");
             if (!username) {
                 alert("ログインされていません");
                 return;
             }
-
+ 
             const users = getUsers();
             if (!users[username]) {
                 alert("アカウントが見つかりません");
                 return;
             }
-
+ 
             if (confirm("本当にアカウントを削除しますか？")) {
                 delete users[username];
                 saveUsers(users);
@@ -413,21 +412,21 @@
                 location.reload();
             }
         }
-
+ 
         function goBack() {
             document.getElementById("main-screen").style.display = "none";
             document.getElementById("late-screen").style.display = "none";
             document.getElementById("select-screen").style.display = "block"; // 選択画面に戻る
         }
-
+ 
         function triggerPhotoUpload() {
             document.getElementById("photoUpload").click(); // ファイル選択ダイアログを開く
         }
-
+ 
         function uploadPhoto() {
             const fileInput = document.getElementById("photoUpload");
             const file = fileInput.files[0];
-
+ 
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
@@ -438,7 +437,7 @@
                 reader.readAsDataURL(file); // ファイルをBase64形式で読み込む
             }
         }
-
+ 
         function init() {
             const user = localStorage.getItem("loggedInUser");
             const userPhoto = localStorage.getItem("userPhoto");
