@@ -343,7 +343,8 @@
                     const lng = position.coords.longitude;
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
 
-                    if (distance >= 100) {
+                    // 学校から150m以上離れている場合は登録を禁止
+                    if (distance >= 150) {
                         alert("学校外では登録できません。");
                         return;
                     }
@@ -377,6 +378,7 @@
                         },
                         body: JSON.stringify({
                             username: username
+                            
                         })
                     })
                     .then(res => {
@@ -415,7 +417,8 @@
                     const lng = position.coords.longitude;
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
 
-                    if (distance >= 100) {
+                    // 学校から150m以上離れている場合は登録を禁止
+                    if (distance >= 150) {
                         alert("学校外では遅刻登録できません。");
                         button.textContent = "遅刻登録失敗";
                         button.disabled = false;
@@ -434,9 +437,10 @@
 
                     attendance.push({
                         username: username,
-                        reason: reason,
-                        status: statusType + "済み"
-                        
+                        status: statusType + "済み",
+                        time: timeStr,
+                        location: locationText,
+                        reason: reason
                     });
 
                     localStorage.setItem("ATTENDANCE", JSON.stringify(attendance));
@@ -455,10 +459,9 @@
                         },
                         body: JSON.stringify({
                             username: username,
-                            status: statusType,
-                            time: timeStr,
-                            location: locationText,
-                            reason: reason
+                            reason: reason,
+                            status: statusType + "済み",
+                            
                         })
                     })
                     .then(res => {
