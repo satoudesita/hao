@@ -60,12 +60,14 @@
 <body>
     <div class="container">
         <h2>欠席登録</h2>
+        <p id="loggedInUserDisplay"></p> <!-- ログイン中のユーザー名を表示する要素 -->
         <input type="text" id="reason" placeholder="欠席理由を入力してください" />
         <button onclick="submitAbsence()">欠席登録</button>
         <p class="output" id="absenceResult"></p>
         <button onclick="goBack()">戻る</button> <!-- 戻るボタン -->
     </div>
     <script>
+        // 欠席登録処理
         function submitAbsence() {
             const reason = document.getElementById("reason").value;
             const username = localStorage.getItem("loggedInUser");
@@ -98,9 +100,23 @@
             document.getElementById("absenceResult").textContent = `欠席登録完了: ${username}（理由: ${reason}, 時刻: ${timeStr}）`;
         }
 
+        // 戻る処理
         function goBack() {
             window.location.href = "hao.html"; // 選択画面に戻る
         }
+
+        // ログイン中のユーザー名を表示
+        function displayLoggedInUser() {
+            const username = localStorage.getItem("loggedInUser");
+            if (username) {
+                document.getElementById("loggedInUserDisplay").textContent = `ログイン中のユーザー: ${username}`;
+            } else {
+                document.getElementById("loggedInUserDisplay").textContent = "ログインされていません";
+            }
+        }
+
+        // ページ読み込み時にログイン中のユーザー名を表示
+        window.onload = displayLoggedInUser;
     </script>
 </body>
 </html>
