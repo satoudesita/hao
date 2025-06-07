@@ -173,6 +173,13 @@
         .contact-btn:hover {
             background-color: #1e88e5; /* 濃い青系のボタン色 */
         }
+
+        #lateCountDisplay {
+            text-align: center;
+            font-size: 16px;
+            color: #d32f2f; /* 赤系の文字色 */
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body onload="init()">
@@ -206,8 +213,9 @@
  
     <div class="container" id="select-screen" style="display:none;">
         <h2>選択画面</h2>
-        <p id="loggedInUserDisplay"></p>
         <p id="currentTime" class="current-time"></p> <!-- 現在の時刻を表示する要素 -->
+        <p id="loggedInUserDisplay"></p>
+        <p id="lateCountDisplay">遅刻回数: 0</p> <!-- 遅刻回数を表示する要素 -->
         <button onclick="syusseki()">出席</button>
         <button onclick="late()">遅刻</button>
         <p id="attendanceResult"></p>
@@ -215,6 +223,7 @@
 
     <div class="container" id="settings-screen" style="display:none;">
         <h2>⚙︎ 設定画面 ⚙︎</h2>
+        <p id="lateCountDisplay">遅刻回数: 0</p> <!-- 遅刻回数を表示する要素 -->
         <button class="logout-btn" onclick="logout()">ログアウト</button>
         <button class="delete-btn" onclick="deleteAccount()">アカウント削除</button>
         <button class="contact-btn" onclick="contactUs()">お問い合わせ</button>
@@ -516,6 +525,10 @@
 
                     localStorage.setItem("ATTENDANCE", JSON.stringify(attendance));
 
+                    // 遅刻回数を記録
+                    const lateCount = parseInt(localStorage.getItem("LATE_COUNT") || "0");
+                    localStorage.setItem("LATE_COUNT", lateCount + 1);
+
                     document.getElementById("attendanceResult").textContent =
                         `${statusType}完了：${username}（${locationText}・${timeStr}・理由：${reason}）`;
 
@@ -532,7 +545,6 @@
                             username: username,
                             reason: reason,
                             status: statusType + "済み",
-                            
                         })
                     })
                     .then(res => {
@@ -621,6 +633,7 @@
         }
 
         function openSettings() {
+            updateLateCountDisplay();
             document.getElementById("select-screen").style.display = "none";
             document.getElementById("settings-screen").style.display = "block";
         }
@@ -643,6 +656,11 @@
 
         function contactUs() {
             window.location.href = "https://forms.cloud.microsoft/r/cjkasq1AaA";
+        }
+
+        function updateLateCountDisplay() {
+            const lateCount = parseInt(localStorage.getItem("LATE_COUNT") || "0");
+            document.getElementById("lateCountDisplay").textContent = `遅刻回数: ${lateCount}`;
         }
     </script>
 </body>
