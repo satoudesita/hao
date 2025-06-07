@@ -205,13 +205,13 @@
     </div>
  
     <div class="user-icon-container">
-        <img id="userIcon" src="default-avatar.png" alt="ユーザーアイコン" onclick="triggerPhotoUpload()" />
+        <img id="userIcon" src="https://kotonohaworks.com/free-icons/wp-content/uploads/kkrn_icon_user_13.png" alt="ユーザーアイコン" onclick="triggerPhotoUpload()" />
         <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="uploadPhoto()" />
         <button class="settings-btn" onclick="openSettings()">設定</button>
     </div>
  
     <div class="user-info-card" style="display:none;">
-        <img id="userIcon" src="default-avatar.png" alt="ユーザーアイコン" />
+        <img id="userIcon" src="https://kotonohaworks.com/free-icons/wp-content/uploads/kkrn_icon_user_13.png" alt="ユーザーアイコン" />
         <div class="user-details">
             <h2 id="loggedInUserDisplay">未設定</h2>
             <p>ログイン中のユーザー</p>
@@ -319,12 +319,17 @@
         function init() {
             const user = localStorage.getItem("loggedInUser");
             const userPhoto = localStorage.getItem("userPhoto");
-            if (userPhoto) {
+
+            if (userPhoto && user) {
                 document.getElementById("userIcon").src = userPhoto; // 保存された写真を表示
             }
+
             if (user) {
                 document.getElementById("loggedInUserDisplay").textContent = user; // ユーザー名を表示
+                document.querySelector(".user-icon-container").style.display = "block"; // ユーザーアイコンと設定ボタンを表示
                 showMain();
+            } else {
+                document.querySelector(".user-icon-container").style.display = "none"; // ユーザーアイコンと設定ボタンを非表示
             }
         }
  
@@ -584,12 +589,17 @@
         function init() {
             const user = localStorage.getItem("loggedInUser");
             const userPhoto = localStorage.getItem("userPhoto");
-            if (userPhoto) {
+
+            if (userPhoto && user) {
                 document.getElementById("userIcon").src = userPhoto; // 保存された写真を表示
             }
+
             if (user) {
                 document.getElementById("loggedInUserDisplay").textContent = user; // ユーザー名を表示
+                document.querySelector(".user-icon-container").style.display = "block"; // ユーザーアイコンと設定ボタンを表示
                 showMain();
+            } else {
+                document.querySelector(".user-icon-container").style.display = "none"; // ユーザーアイコンと設定ボタンを非表示
             }
         }
 
