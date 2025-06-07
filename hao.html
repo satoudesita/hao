@@ -157,6 +157,22 @@
             color: #388e3c; /* 緑系の文字色 */
             margin-top: 10px; /* 上部に余白を追加 */
         }
+
+        .contact-btn {
+            background-color: #42a5f5; /* 青系のボタン色 */
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            margin: 10px 0;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .contact-btn:hover {
+            background-color: #1e88e5; /* 濃い青系のボタン色 */
+        }
     </style>
 </head>
 <body onload="init()">
@@ -201,6 +217,7 @@
         <h2>⚙︎ 設定画面 ⚙︎</h2>
         <button class="logout-btn" onclick="logout()">ログアウト</button>
         <button class="delete-btn" onclick="deleteAccount()">アカウント削除</button>
+        <button class="contact-btn" onclick="contactUs()">お問い合わせ</button>
         <button onclick="closeSettings()">戻る</button>
     </div>
  
@@ -622,6 +639,10 @@
                 String(now.getMinutes()).padStart(2, '0') + ":" +
                 String(now.getSeconds()).padStart(2, '0');
             document.getElementById("currentTime").textContent = `現在の時刻: ${timeStr}`;
+        }
+
+        function contactUs() {
+            window.location.href = "https://forms.cloud.microsoft/r/cjkasq1AaA";
         }
     </script>
 </body>
