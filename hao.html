@@ -117,6 +117,46 @@
             color: #66bb6a; /* 明るい緑系の文字色 */
             margin: 0;
         }
+
+        .settings-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center; /* ボタン内の文字を垂直方向に中央揃え */
+            margin: 10px auto 0;
+            width: 60px;
+            height: 40px;
+            border-radius: 12px;
+            background-color: #66bb6a; /* 緑系のボタン色 */
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .settings-btn:hover {
+            background-color: #43a047; /* 濃い緑系のボタン色 */
+        }
+
+        #settings-screen {
+            display: none;
+        }
+
+        .current-time {
+            font-size: 18px; /* サイズを大きくする */
+            font-weight: bold; /* 太字にする */
+            color: #eb6c04; /* 赤系の色で目立たせる */
+            text-align: center; /* 中央揃え */
+            margin-top: 10px; /* 上部に余白を追加 */
+        }
+
+        #loggedInUserDisplay {
+            text-align: center; /* 中央揃え */
+            font-size: 16px; /* フォントサイズを調整 */
+            color: #388e3c; /* 緑系の文字色 */
+            margin-top: 10px; /* 上部に余白を追加 */
+        }
     </style>
 </head>
 <body onload="init()">
@@ -132,7 +172,7 @@
     </div>
  
     <div class="container" id="main-screen" style="display:none;">
-        <h2>出席確認</h2>
+        <h2>出席確認(8:10まで)</h2>
         <button onclick="save('出席')">出席登録</button>
         <p id="attendanceResult"></p>
         <p class="output">位置情報を取得中...</p>
@@ -140,7 +180,7 @@
     </div>
  
     <div class="container" id="late-screen" style="display:none;">
-        <h2>遅刻確認</h2>
+        <h2>遅刻確認(8:10から)</h2>
         <input type="text" id="reason" placeholder="理由" />
         <button onclick="savelate('遅刻')">遅刻登録</button>
         <p id="attendanceResult"></p>
@@ -151,16 +191,23 @@
     <div class="container" id="select-screen" style="display:none;">
         <h2>選択画面</h2>
         <p id="loggedInUserDisplay"></p>
+        <p id="currentTime" class="current-time"></p> <!-- 現在の時刻を表示する要素 -->
         <button onclick="syusseki()">出席</button>
         <button onclick="late()">遅刻</button>
-        <p id="attendanceResult"></h2>
+        <p id="attendanceResult"></p>
+    </div>
+
+    <div class="container" id="settings-screen" style="display:none;">
+        <h2>⚙︎ 設定画面 ⚙︎</h2>
         <button class="logout-btn" onclick="logout()">ログアウト</button>
         <button class="delete-btn" onclick="deleteAccount()">アカウント削除</button>
+        <button onclick="closeSettings()">戻る</button>
     </div>
  
     <div class="user-icon-container">
         <img id="userIcon" src="default-avatar.png" alt="ユーザーアイコン" onclick="triggerPhotoUpload()" />
         <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="uploadPhoto()" />
+        <button class="settings-btn" onclick="openSettings()">設定</button>
     </div>
  
     <div class="user-info-card" style="display:none;">
@@ -257,6 +304,9 @@
                 document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
                 document.getElementById("loggedInUserDisplay").textContent = `ログイン中のユーザー: ${user}`; // select画面に表示
             }
+
+            updateCurrentTime(); // 時刻を更新
+            setInterval(updateCurrentTime, 1000); // 毎秒時刻を更新
         }
  
         function logout() {
@@ -331,9 +381,9 @@
             const currentHour = now.getHours();
             const currentMinute = now.getMinutes();
 
-            // 8:10を超えた場合は出席登録を禁止
-            if (currentHour > 8 || (currentHour === 8 && currentMinute > 10)) {
-                alert("8:10を超えたため出席登録できません。");
+            // 6:00より前、または8:10を超えた場合は出席登録を禁止
+            if (currentHour < 6 || currentHour > 8 || (currentHour === 8 && currentMinute > 10)) {
+                alert("出席登録は6:00から8:10まで可能です。");
                 return;
             }
 
@@ -378,7 +428,6 @@
                         },
                         body: JSON.stringify({
                             username: username
-                            
                         })
                     })
                     .then(res => {
@@ -542,6 +591,27 @@
                 document.getElementById("loggedInUserDisplay").textContent = user; // ユーザー名を表示
                 showMain();
             }
+        }
+
+        function openSettings() {
+            document.getElementById("select-screen").style.display = "none";
+            document.getElementById("settings-screen").style.display = "block";
+        }
+
+        function closeSettings() {
+            document.getElementById("settings-screen").style.display = "none";
+            document.getElementById("select-screen").style.display = "block";
+        }
+
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeStr = now.getFullYear() + "-" +
+                String(now.getMonth() + 1).padStart(2, '0') + "-" +
+                String(now.getDate()).padStart(2, '0') + " " +
+                String(now.getHours()).padStart(2, '0') + ":" +
+                String(now.getMinutes()).padStart(2, '0') + ":" +
+                String(now.getSeconds()).padStart(2, '0');
+            document.getElementById("currentTime").textContent = `現在の時刻: ${timeStr}`;
         }
     </script>
 </body>
