@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欠席登録</title>
+    <style>
+        body {
+            font-family: 'Helvetica', sans-serif;
+            background-color: #fbe9e7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #d32f2f; /* 赤系の文字色 */
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ef9a9a;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            background-color: #e57373; /* 赤系のボタン色 */
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            margin: 10px 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #d32f2f; /* 濃い赤系のボタン色 */
+        }
+        .output {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>欠席登録</h2>
+        <input type="text" id="reason" placeholder="欠席理由を入力してください" />
+        <button onclick="submitAbsence()">欠席登録</button>
+        <p class="output" id="absenceResult"></p>
+        <button onclick="goBack()">戻る</button> <!-- 戻るボタン -->
+    </div>
+    <script>
+        function submitAbsence() {
+            const reason = document.getElementById("reason").value;
+            const username = localStorage.getItem("loggedInUser");
+
+            if (!username) {
+                alert("ログインされていません");
+                return;
+            }
+
+            if (!reason) {
+                alert("欠席理由を入力してください");
+                return;
+            }
+
+            const absenceData = JSON.parse(localStorage.getItem("ABSENCE") || "[]");
+            const now = new Date();
+            const timeStr = now.getFullYear() + "-" +
+                String(now.getMonth() + 1).padStart(2, '0') + "-" +
+                String(now.getDate()).padStart(2, '0') + " " +
+                String(now.getHours()).padStart(2, '0') + ":" +
+                String(now.getMinutes()).padStart(2, '0');
+
+            absenceData.push({
+                username: username,
+                reason: reason,
+                time: timeStr
+            });
+
+            localStorage.setItem("ABSENCE", JSON.stringify(absenceData));
+            document.getElementById("absenceResult").textContent = `欠席登録完了: ${username}（理由: ${reason}, 時刻: ${timeStr}）`;
+        }
+
+        function goBack() {
+            window.location.href = "hao.html"; // 選択画面に戻る
+        }
+    </script>
+</body>
+</html>
