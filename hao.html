@@ -413,7 +413,7 @@
             const currentHour = now.getHours();
             const currentMinute = now.getMinutes();
 
-            // 6:00より前、または8:10を超えた場合は出席登録を禁止
+
             if (currentHour < 6 || currentHour > 8 || (currentHour === 8 && currentMinute > 10)) {
                 alert("出席登録は6:00から8:10まで可能です。");
                 return;
@@ -426,7 +426,7 @@
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
 
                     // 学校から150m以上離れている場合は登録を禁止
-                    if (distance >= 150) {
+                    if (distance >= 200) {
                         alert("学校外では登録できません。");
                         return;
                     }
@@ -452,7 +452,7 @@
                     document.getElementById("attendanceResult").textContent =
                         `${statusType}完了：${username}（${locationText}・${timeStr}）`;
 
-                    // データ送信
+                   
                     fetch("https://prod-01.japaneast.logic.azure.com:443/workflows/8838d39a55a34cd6b596c77d01d3041c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=HIq4VSXdHQUvmb1MVAFVnsYVencXJOBleZDoExKHMoo", {
                         method: "POST",
                         headers: {
@@ -498,8 +498,8 @@
                     const lng = position.coords.longitude;
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
 
-                    // 学校から150m以上離れている場合は登録を禁止
-                    if (distance >= 150) {
+                    
+                    if (distance >= 200) {
                         alert("学校外では遅刻登録できません。");
                         button.textContent = "遅刻登録失敗";
                         button.disabled = false;
@@ -526,7 +526,7 @@
 
                     localStorage.setItem("ATTENDANCE", JSON.stringify(attendance));
 
-                    // 遅刻回数を記録
+           
                     const lateCount = parseInt(localStorage.getItem("LATE_COUNT") || "0");
                     localStorage.setItem("LATE_COUNT", lateCount + 1);
 
@@ -536,7 +536,7 @@
                     button.textContent = "遅刻登録完了";
                     button.disabled = false;
 
-                    // データ送信
+                 
                     fetch("https://prod-07.japaneast.logic.azure.com:443/workflows/e30f108c25324d62bfa50133e41c47bb/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=d3BzwwA54bqFHmhHwvCPZaXdScGUHJRS8pWwoXx-pds", {
                         method: "POST",
                         headers: {
