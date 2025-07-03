@@ -185,13 +185,20 @@
 <body onload="init()">
     <div class="container" id="login-screen">
         <h2>ログイン</h2>
-        <input type="text" id="username" placeholder="ユーザー名" />
+        
+        <h3>生徒ログイン</h3>
+        <input type="text" id="username" placeholder="生徒ユーザー名" />
         <input type="password" id="password" placeholder="パスワード" />
         <button onclick="login()">ログイン</button>
-        <h3>新規登録</h3>
-        <input type="text" id="newUsername" placeholder="新規ユーザー名" />
-        <input type="password" id="newPassword" placeholder="新規パスワード" />
+        
+        <h3>生徒新規登録</h3>
+        <input type="text" id="newUsername" placeholder="生徒ユーザー名" />
+        <input type="password" id="newPassword" placeholder="パスワード" />
         <button onclick="register()">登録</button>
+        
+        <h3>先生</h3>
+        <button onclick="goToTeacherLogin()">先生ログイン</button>
+        <button onclick="goToTeacherRegister()">先生新規登録</button>
     </div>
  
     <div class="container" id="main-screen" style="display:none;">
@@ -210,7 +217,17 @@
         <p class="output1">位置情報を取得中...</p>
         <button onclick="goBack()">戻る</button>
     </div>
- 
+    
+    <div class="container" id="teacherselect-screen" style="display:none;">
+        <h2>先生管理画面</h2>
+        <p id="currentTime" class="current-time"></p> <!-- 現在の時刻を表示する要素 -->
+        <p id="loggedInUserDisplay"></p>
+        <button onclick="syusseki()">出席</button>
+        <button onclick="late()">遅刻</button>
+        <button onclick="window.location.href='abstract.html'">欠席</button> <!-- 欠席登録ボタン -->
+        <p id="attendanceResult"></p>
+    </div>
+
     <div class="container" id="select-screen" style="display:none;">
         <h2>選択画面</h2>
         <p id="currentTime" class="current-time"></p> <!-- 現在の時刻を表示する要素 -->
@@ -229,6 +246,22 @@
         <button class="delete-btn" onclick="deleteAccount()">アカウント削除</button>
         <button class="contact-btn" onclick="contactUs()">お問い合わせ</button>
         <button onclick="closeSettings()">戻る</button>
+    </div>
+
+    <div class="container" id="teacher-login-screen" style="display:none;">
+        <h2>先生ログイン</h2>
+        <input type="text" id="teacherUsername" placeholder="先生ユーザー名" />
+        <input type="password" id="teacherPassword" placeholder="パスワード" />
+        <button onclick="teacherLogin()">ログイン</button>
+        <button onclick="goToStudentLogin()">生徒ログイン画面に戻る</button>
+    </div>
+
+    <div class="container" id="teacher-register-screen" style="display:none;">
+        <h2>先生新規登録</h2>
+        <input type="text" id="newTeacherUsername" placeholder="先生ユーザー名" />
+        <input type="password" id="newTeacherPassword" placeholder="パスワード" />
+        <button onclick="registerTeacher()">登録</button>
+        <button onclick="goToStudentLogin()">生徒ログイン画面に戻る</button>
     </div>
  
     <div class="user-icon-container">
@@ -339,24 +372,34 @@
         function logout() {
             if (confirm("本当にログアウトしますか？")) {
                 localStorage.removeItem("loggedInUser");
+                localStorage.removeItem("loggedInTeacher"); // 先生のログイン情報も削除
                 location.reload();
             }
         }
  
         function init() {
             const user = localStorage.getItem("loggedInUser");
+            const teacher = localStorage.getItem("loggedInTeacher");
             const userPhoto = localStorage.getItem("userPhoto");
 
-            if (userPhoto && user) {
-                document.getElementById("userIcon").src = userPhoto; // 保存された写真を表示
+            if (userPhoto) {
+                document.getElementById("userIcon").src = userPhoto; 
             }
 
-            if (user) {
-                document.getElementById("loggedInUserDisplay").textContent = user; // ユーザー名を表示
-                document.querySelector(".user-icon-container").style.display = "block"; // ユーザーアイコンと設定ボタンを表示
-                showMain();
+            if (teacher) {
+                document.getElementById("loggedInUserDisplay").textContent = `先生: ${teacher}`; 
+                document.querySelector(".user-icon-container").style.display = "block"; 
+                document.getElementById("login-screen").style.display = "none"; 
+                document.getElementById("select-screen").style.display = "block"; 
+            } else if (user) {
+                document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`; 
+                document.querySelector(".user-icon-container").style.display = "block"; 
+                document.getElementById("login-screen").style.display = "none"; 
+                document.getElementById("select-screen").style.display = "block"; 
             } else {
-                document.querySelector(".user-icon-container").style.display = "none"; // ユーザーアイコンと設定ボタンを非表示
+                document.querySelector(".user-icon-container").style.display = "none"; 
+                document.getElementById("login-screen").style.display = "block"; 
+                document.getElementById("select-screen").style.display = "none"; 
             }
         }
  
@@ -618,21 +661,30 @@
  
         function init() {
             const user = localStorage.getItem("loggedInUser");
+            const teacher = localStorage.getItem("loggedInTeacher");
             const userPhoto = localStorage.getItem("userPhoto");
 
-            if (userPhoto && user) {
-                document.getElementById("userIcon").src = userPhoto; // 保存された写真を表示
+            if (userPhoto) {
+                document.getElementById("userIcon").src = userPhoto; 
             }
 
-            if (user) {
-                document.getElementById("loggedInUserDisplay").textContent = user; // ユーザー名を表示
-                document.querySelector(".user-icon-container").style.display = "block"; // ユーザーアイコンと設定ボタンを表示
-                showMain();
+            if (teacher) {
+                document.getElementById("loggedInUserDisplay").textContent = `先生: ${teacher}`; 
+                document.querySelector(".user-icon-container").style.display = "block"; 
+                document.getElementById("login-screen").style.display = "none"; 
+                document.getElementById("select-screen").style.display = "block"; 
+            } else if (user) {
+                document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`; 
+                document.querySelector(".user-icon-container").style.display = "block"; 
+                document.getElementById("login-screen").style.display = "none"; 
+                document.getElementById("select-screen").style.display = "block"; 
             } else {
-                document.querySelector(".user-icon-container").style.display = "none"; // ユーザーアイコンと設定ボタンを非表示
+                document.querySelector(".user-icon-container").style.display = "none"; 
+                document.getElementById("login-screen").style.display = "block"; 
+                document.getElementById("select-screen").style.display = "none"; 
             }
         }
-
+ 
         function openSettings() {
             updateLateCountDisplay();
             document.getElementById("select-screen").style.display = "none";
@@ -662,6 +714,79 @@
         function updateLateCountDisplay() {
             const lateCount = parseInt(localStorage.getItem("LATE_COUNT") || "0");
             document.getElementById("lateCountDisplay").textContent = `遅刻回数: ${lateCount}`;
+        }
+
+        function goToTeacherLogin() {
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("teacher-login-screen").style.display = "block";
+        }
+
+        function goToTeacherRegister() {
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("teacher-register-screen").style.display = "block";
+        }
+
+        function goToStudentLogin() {
+            document.getElementById("teacher-login-screen").style.display = "none";
+            document.getElementById("teacher-register-screen").style.display = "none";
+            document.getElementById("login-screen").style.display = "block";
+        }
+
+        async function teacherLogin() {
+            const username = document.getElementById("teacherUsername").value;
+            const password = document.getElementById("teacherPassword").value;
+
+            if (!username || !password) {
+                alert("ユーザー名とパスワードを入力してください");
+                return;
+            }
+
+            const teachers = getTeachers(); // 先生用のデータを取得
+            const hashed = await hashPassword(password);
+
+            if (teachers[username] && teachers[username] === hashed) {
+                localStorage.setItem("loggedInTeacher", username); // ローカルストレージに先生のログイン情報を保存
+                alert("先生としてログインしました");
+                showTeacherMain(); // 先生用画面を表示
+            } else {
+                alert("ユーザー名またはパスワードが違います");
+            }
+        }
+
+        function getTeachers() {
+            return JSON.parse(localStorage.getItem("TEACHERS") || "{}");
+        }
+
+        function saveTeachers(teachers) {
+            localStorage.setItem("TEACHERS", JSON.stringify(teachers));
+        }
+
+        function showTeacherMain() {
+            document.getElementById("teacher-login-screen").style.display = "none";
+            document.getElementById("teacherselect-screen").style.display = "block";
+            document.getElementById("loggedInUserDisplay").textContent = `先生: ${localStorage.getItem("loggedInTeacher")}`;
+        }
+
+        async function registerTeacher() {
+            const newTeacherUsername = document.getElementById("newTeacherUsername").value;
+            const newTeacherPassword = document.getElementById("newTeacherPassword").value;
+
+            if (!newTeacherUsername || !newTeacherPassword) {
+                alert("ユーザー名とパスワードを入力してください");
+                return;
+            }
+
+            const teachers = getTeachers();
+            if (teachers[newTeacherUsername]) {
+                alert("このユーザー名は既に登録されています");
+                return;
+            }
+
+            const hashed = await hashPassword(newTeacherPassword);
+            teachers[newTeacherUsername] = hashed;
+            saveTeachers(teachers);
+            alert("先生登録が完了しました");
+            goToStudentLogin();
         }
     </script>
 </body>
