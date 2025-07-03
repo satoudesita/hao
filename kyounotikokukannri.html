@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今日の遅刻管理</title>
+    <style>
+        body {
+            font-family: 'Helvetica', sans-serif;
+            background-color: #fbe9e7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+        }
+        h2 {
+            text-align: center;
+            color: #d32f2f; /* 赤系の文字色 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #d32f2f;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #fbe9e7;
+            color: #d32f2f;
+        }
+        td {
+            background-color: #ffffff;
+        }
+        .back-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .back-btn:hover {
+            background-color: #b71c1c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>今日の遅刻管理</h2>
+        <table id="lateTable">
+            <thead>
+                <tr>
+                    <th>名前</th>
+                    <th>日付</th>
+                    <th>時間</th>
+                    <th>理由</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 遅刻データがここに追加されます -->
+            </tbody>
+        </table>
+        <button class="back-btn" onclick="goBack()">戻る</button>
+    </div>
+    <script>
+        function loadLateData() {
+            const lateTableBody = document.getElementById("lateTable").querySelector("tbody");
+
+            // 表を初期化
+            lateTableBody.innerHTML = "";
+
+            // 今日の日付を取得
+            const today = new Date();
+            const todayStr = today.getFullYear() + "-" +
+                String(today.getMonth() + 1).padStart(2, '0') + "-" +
+                String(today.getDate()).padStart(2, '0');
+
+            // ローカルストレージから遅刻データを取得
+            const attendanceData = JSON.parse(localStorage.getItem("ATTENDANCE") || "[]");
+
+            // 今日の遅刻データをフィルタリング
+            const todayLateData = attendanceData.filter(entry => {
+                return entry.status === "遅刻済み" && entry.time.startsWith(todayStr);
+            });
+
+            // 表にデータを追加
+            todayLateData.forEach(entry => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${entry.username}</td>
+                    <td>${entry.time.split(" ")[0]}</td>
+                    <td>${entry.time.split(" ")[1]}</td>
+                    <td>${entry.reason}</td>
+                `;
+                lateTableBody.appendChild(row);
+            });
+        }
+
+        function goBack() {
+            window.location.href = "hao.html"; // 先生管理画面に戻る
+        }
+
+        function init() {
+            const user = localStorage.getItem("loggedInUser");
+            const teacher = localStorage.getItem("loggedInTeacher");
+            const userPhoto = localStorage.getItem("userPhoto");
+
+            if (userPhoto) {
+                document.getElementById("userIcon").src = userPhoto; // 保存された写真を表示
+            }
+
+            if (teacher) {
+                document.getElementById("loggedInUserDisplay").textContent = `先生: ${teacher}`; // 先生名を表示
+                document.querySelector(".user-icon-container").style.display = "block"; // ユーザーアイコンと設定ボタンを表示
+                document.getElementById("login-screen").style.display = "none"; // ログイン画面を非表示
+                document.getElementById("teacherselect-screen").style.display = "block"; // 先生管理画面を表示
+            } else if (user) {
+                document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`; // 生徒名を表示
+                document.querySelector(".user-icon-container").style.display = "block"; // ユーザーアイコンと設定ボタンを表示
+                document.getElementById("login-screen").style.display = "none"; // ログイン画面を非表示
+                document.getElementById("select-screen").style.display = "block"; // 生徒選択画面を表示
+            } else {
+                document.querySelector(".user-icon-container").style.display = "none"; // ユーザーアイコンと設定ボタンを非表示
+                document.getElementById("login-screen").style.display = "block"; // ログイン画面を表示
+                document.getElementById("select-screen").style.display = "none"; // 選択画面を非表示
+                document.getElementById("teacherselect-screen").style.display = "none"; // 先生管理画面を非表示
+            }
+        }
+
+        function openSettings() {
+            updateLateCountDisplay();
+            const teacher = localStorage.getItem("loggedInTeacher");
+
+            if (teacher) {
+                document.getElementById("teacherselect-screen").style.display = "none"; // 先生管理画面を非表示
+            } else {
+                document.getElementById("select-screen").style.display = "none"; // 生徒選択画面を非表示
+            }
+
+            document.getElementById("settings-screen").style.display = "block"; // 設定画面を表示
+        }
+
+        function closeSettings() {
+            const teacher = localStorage.getItem("loggedInTeacher");
+
+            document.getElementById("settings-screen").style.display = "none"; // 設定画面を非表示
+
+            if (teacher) {
+                document.getElementById("teacherselect-screen").style.display = "block"; // 先生管理画面を表示
+            } else {
+                document.getElementById("select-screen").style.display = "block"; // 生徒選択画面を表示
+            }
+        }
+
+        // ページ読み込み時に遅刻データをロード
+        window.onload = function() {
+            loadLateData();
+            init();
+        };
+    </script>
+</body>
+</html>

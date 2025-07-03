@@ -222,9 +222,9 @@
         <h2>先生管理画面</h2>
         <p id="currentTime" class="current-time"></p> <!-- 現在の時刻を表示する要素 -->
         <p id="loggedInUserDisplay"></p>
-        <button onclick="syusseki()">出席</button>
-        <button onclick="late()">遅刻</button>
-        <button onclick="window.location.href='abstract.html'">欠席</button> <!-- 欠席登録ボタン -->
+        <button onclick="window.location.href='zenntaikanri.html'">全体管理</button>
+        <button onclick="window.location.href='kyounotikokukannri.html'">今日の遅刻管理</button>
+        <button onclick="window.location.href='gyakutannsa.html'">逆探査</button> <!-- 欠席登録ボタン -->
         <p id="attendanceResult"></p>
     </div>
 
@@ -383,23 +383,26 @@
             const userPhoto = localStorage.getItem("userPhoto");
 
             if (userPhoto) {
-                document.getElementById("userIcon").src = userPhoto; 
+                document.getElementById("userIcon").src = userPhoto; // 保存された写真を表示
             }
 
             if (teacher) {
-                document.getElementById("loggedInUserDisplay").textContent = `先生: ${teacher}`; 
-                document.querySelector(".user-icon-container").style.display = "block"; 
-                document.getElementById("login-screen").style.display = "none"; 
-                document.getElementById("select-screen").style.display = "block"; 
+                document.getElementById("loggedInUserDisplay").textContent = `先生: ${teacher}`; // 先生名を表示
+                document.querySelector(".user-icon-container").style.display = "block"; // ユーザーアイコンと設定ボタンを表示
+                document.getElementById("login-screen").style.display = "none"; // ログイン画面を非表示
+                document.getElementById("teacherselect-screen").style.display = "block"; // 先生管理画面を表示
+                document.getElementById("select-screen").style.display = "none"; // 生徒選択画面を非表示
             } else if (user) {
-                document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`; 
-                document.querySelector(".user-icon-container").style.display = "block"; 
-                document.getElementById("login-screen").style.display = "none"; 
-                document.getElementById("select-screen").style.display = "block"; 
+                document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`; // 生徒名を表示
+                document.querySelector(".user-icon-container").style.display = "block"; // ユーザーアイコンと設定ボタンを表示
+                document.getElementById("login-screen").style.display = "none"; // ログイン画面を非表示
+                document.getElementById("select-screen").style.display = "block"; // 生徒選択画面を表示
+                document.getElementById("teacherselect-screen").style.display = "none"; // 先生管理画面を非表示
             } else {
-                document.querySelector(".user-icon-container").style.display = "none"; 
-                document.getElementById("login-screen").style.display = "block"; 
-                document.getElementById("select-screen").style.display = "none"; 
+                document.querySelector(".user-icon-container").style.display = "none"; // ユーザーアイコンと設定ボタンを非表示
+                document.getElementById("login-screen").style.display = "block"; // ログイン画面を表示
+                document.getElementById("select-screen").style.display = "none"; // 生徒選択画面を非表示
+                document.getElementById("teacherselect-screen").style.display = "none"; // 先生管理画面を非表示
             }
         }
  
@@ -541,7 +544,6 @@
                     const lng = position.coords.longitude;
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
 
-                    
                     if (distance >= 200) {
                         alert("学校外では遅刻登録できません。");
                         button.textContent = "遅刻登録失敗";
@@ -569,7 +571,6 @@
 
                     localStorage.setItem("ATTENDANCE", JSON.stringify(attendance));
 
-           
                     const lateCount = parseInt(localStorage.getItem("LATE_COUNT") || "0");
                     localStorage.setItem("LATE_COUNT", lateCount + 1);
 
@@ -579,7 +580,7 @@
                     button.textContent = "遅刻登録完了";
                     button.disabled = false;
 
-                 
+                    // サーバーにデータを送信
                     fetch("https://prod-07.japaneast.logic.azure.com:443/workflows/e30f108c25324d62bfa50133e41c47bb/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=d3BzwwA54bqFHmhHwvCPZaXdScGUHJRS8pWwoXx-pds", {
                         method: "POST",
                         headers: {
@@ -665,23 +666,26 @@
             const userPhoto = localStorage.getItem("userPhoto");
 
             if (userPhoto) {
-                document.getElementById("userIcon").src = userPhoto; 
+                document.getElementById("userIcon").src = userPhoto; // 保存された写真を表示
             }
 
             if (teacher) {
-                document.getElementById("loggedInUserDisplay").textContent = `先生: ${teacher}`; 
-                document.querySelector(".user-icon-container").style.display = "block"; 
-                document.getElementById("login-screen").style.display = "none"; 
-                document.getElementById("select-screen").style.display = "block"; 
+                document.getElementById("loggedInUserDisplay").textContent = `先生: ${teacher}`; // 先生名を表示
+                document.querySelector(".user-icon-container").style.display = "block"; // ユーザーアイコンと設定ボタンを表示
+                document.getElementById("login-screen").style.display = "none"; // ログイン画面を非表示
+                document.getElementById("teacherselect-screen").style.display = "block"; // 先生管理画面を表示
+                document.getElementById("select-screen").style.display = "none"; // 生徒選択画面を非表示
             } else if (user) {
-                document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`; 
-                document.querySelector(".user-icon-container").style.display = "block"; 
-                document.getElementById("login-screen").style.display = "none"; 
-                document.getElementById("select-screen").style.display = "block"; 
+                document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`; // 生徒名を表示
+                document.querySelector(".user-icon-container").style.display = "block"; // ユーザーアイコンと設定ボタンを表示
+                document.getElementById("login-screen").style.display = "none"; // ログイン画面を非表示
+                document.getElementById("select-screen").style.display = "block"; // 生徒選択画面を表示
+                document.getElementById("teacherselect-screen").style.display = "none"; // 先生管理画面を非表示
             } else {
-                document.querySelector(".user-icon-container").style.display = "none"; 
-                document.getElementById("login-screen").style.display = "block"; 
-                document.getElementById("select-screen").style.display = "none"; 
+                document.querySelector(".user-icon-container").style.display = "none"; // ユーザーアイコンと設定ボタンを非表示
+                document.getElementById("login-screen").style.display = "block"; // ログイン画面を表示
+                document.getElementById("select-screen").style.display = "none"; // 生徒選択画面を非表示
+                document.getElementById("teacherselect-screen").style.display = "none"; // 先生管理画面を非表示
             }
         }
  
