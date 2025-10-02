@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +16,7 @@
             align-items: center;
             height: 100vh;
         }
+
         .container {
             background: #ffffff;
             padding: 30px;
@@ -23,10 +25,13 @@
             width: 90%;
             max-width: 400px;
         }
-        h2, h3 {
+
+        h2,
+        h3 {
             text-align: center;
-            color: #388e3c; /
+            color: #388e3c;
         }
+
         input {
             width: 100%;
             padding: 10px;
@@ -35,9 +40,10 @@
             border-radius: 8px;
             box-sizing: border-box;
         }
+
         button {
             width: 100%;
-            background-color: #66bb6a; /* 緑系のボタン色 */
+            background-color: #66bb6a;
             color: white;
             padding: 12px;
             border: none;
@@ -46,33 +52,41 @@
             cursor: pointer;
             font-size: 16px;
         }
+
         button:hover {
             background-color: #43a047;
         }
-        .output, #attendanceResult {
+
+        .output,
+        #attendanceResult {
             text-align: center;
             margin-top: 10px;
             font-size: 14px;
             color: #388e3c;
         }
+
         .logout-btn {
             background-color: #ff7043;
         }
+
         .logout-btn:hover {
             background-color: #e64a19;
         }
+
         .delete-btn {
             background-color: #ff7043;
         }
+
         .delete-btn:hover {
             background-color: #e64a19;
         }
+
         .user-icon-container {
             position: absolute;
             top: 10px;
             left: 10px;
         }
- 
+
         #userIcon {
             width: 50px;
             height: 50px;
@@ -80,16 +94,17 @@
             cursor: pointer;
             border: 2px solid #a5d6a7;
         }
- 
+
         #userIcon:hover {
             border-color: #66bb6a;
         }
+
         .user-info-card {
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #f1f8e9; /* 緑系の背景色 */
-            border: 1px solid #a5d6a7; /* 緑系の枠線 */
+            background-color: #f1f8e9;
+            border: 1px solid #a5d6a7;
             border-radius: 12px;
             padding: 15px;
             margin: 20px auto;
@@ -103,30 +118,30 @@
             height: 60px;
             border-radius: 50%;
             margin-right: 15px;
-            border: 2px solid #a5d6a7; /* 緑系の枠線 */
+            border: 2px solid #a5d6a7;
         }
 
         .user-details h2 {
             font-size: 18px;
-            color: #388e3c; /* 緑系の文字色 */
+            color: #388e3c;
             margin: 0;
         }
 
         .user-details p {
             font-size: 14px;
-            color: #66bb6a; /* 明るい緑系の文字色 */
+            color: #66bb6a;
             margin: 0;
         }
 
         .settings-btn {
             display: flex;
             justify-content: center;
-            align-items: center; /* ボタン内の文字を垂直方向に中央揃え */
+            align-items: center;
             margin: 10px auto 0;
             width: 60px;
             height: 40px;
             border-radius: 12px;
-            background-color: #66bb6a; /* 緑系のボタン色 */
+            background-color: #66bb6a;
             color: white;
             border: none;
             font-size: 16px;
@@ -136,7 +151,7 @@
         }
 
         .settings-btn:hover {
-            background-color: #43a047; /* 濃い緑系のボタン色 */
+            background-color: #43a047;
         }
 
         #settings-screen {
@@ -144,22 +159,22 @@
         }
 
         .current-time {
-            font-size: 18px; /* サイズを大きくする */
-            font-weight: bold; /* 太字にする */
-            color: #eb6c04; /* 赤系の色で目立たせる */
-            text-align: center; /* 中央揃え */
-            margin-top: 10px; /* 上部に余白を追加 */
+            font-size: 18px;
+            font-weight: bold;
+            color: #eb6c04;
+            text-align: center;
+            margin-top: 10px;
         }
 
         #loggedInUserDisplay {
-            text-align: center; /* 中央揃え */
-            font-size: 16px; /* フォントサイズを調整 */
-            color: #388e3c; /* 緑系の文字色 */
-            margin-top: 10px; /* 上部に余白を追加 */
+            text-align: center;
+            font-size: 16px;
+            color: #388e3c;
+            margin-top: 10px;
         }
 
         .contact-btn {
-            background-color: #42a5f5; /* 青系のボタン色 */
+            background-color: #42a5f5;
             color: white;
             padding: 12px;
             border: none;
@@ -171,44 +186,42 @@
         }
 
         .contact-btn:hover {
-            background-color: #1e88e5; /* 濃い青系のボタン色 */
+            background-color: #1e88e5;
         }
 
         #lateCountDisplay {
             text-align: center;
             font-size: 16px;
-            color: #d32f2f; /* 赤系の文字色 */
+            color: #d32f2f;
             margin-top: 10px;
         }
     </style>
 </head>
+
 <body onload="init()">
     <div class="container" id="login-screen">
         <h2>ログイン</h2>
-        
+
         <h3>生徒ログイン</h3>
         <input type="text" id="username" placeholder="生徒ユーザー名" />
         <input type="password" id="password" placeholder="パスワード" />
         <button onclick="login()">ログイン</button>
-        
+
         <h3>生徒新規登録</h3>
         <input type="text" id="newUsername" placeholder="生徒ユーザー名" />
         <input type="password" id="newPassword" placeholder="パスワード" />
         <button onclick="register()">登録</button>
-        
-        <h3>先生</h3>
-        <button onclick="goToTeacherLogin()">先生ログイン</button>
-        <button onclick="goToTeacherRegister()">先生新規登録</button>
+
     </div>
- 
+
     <div class="container" id="main-screen" style="display:none;">
         <h2>出席確認(8:10まで)</h2>
         <button onclick="save('出席')">出席登録</button>
         <p id="attendanceResult"></p>
         <p class="output">位置情報を取得中...</p>
-        <button onclick="goBack()">戻る</button> <!-- 戻るボタン -->
+        <button onclick="goBack()">戻る</button>
     </div>
- 
+
     <div class="container" id="late-screen" style="display:none;">
         <h2>遅刻確認(8:10から)</h2>
         <input type="text" id="reason" placeholder="理由" />
@@ -217,31 +230,21 @@
         <p class="output1">位置情報を取得中...</p>
         <button onclick="goBack()">戻る</button>
     </div>
-    
-    <div class="container" id="teacherselect-screen" style="display:none;">
-        <h2>先生管理画面</h2>
-        <p id="currentTime" class="current-time"></p> <!-- 現在の時刻を表示する要素 -->
-        <p id="loggedInUserDisplay"></p>
-        <button onclick="window.location.href='zenntaikanri.html'">全体管理</button>
-        <button onclick="window.location.href='kyounotikokukannri.html'">今日の遅刻管理</button>
-        <button onclick="window.location.href='gyakutannsa.html'">逆探査</button> <!-- 欠席登録ボタン -->
-        <p id="attendanceResult"></p>
-    </div>
 
     <div class="container" id="select-screen" style="display:none;">
         <h2>選択画面</h2>
-        <p id="currentTime" class="current-time"></p> <!-- 現在の時刻を表示する要素 -->
+        <p id="currentTime" class="current-time"></p>
         <p id="loggedInUserDisplay"></p>
-        <p id="lateCountDisplay">遅刻回数: 0</p> <!-- 遅刻回数を表示する要素 -->
+        <p id="lateCountDisplay">遅刻回数: 0</p>
         <button onclick="syusseki()">出席</button>
         <button onclick="late()">遅刻</button>
-        <button onclick="window.location.href='abstract.html'">欠席</button> <!-- 欠席登録ボタン -->
+        <button onclick="window.location.href='abstract.html'">欠席</button>
         <p id="attendanceResult"></p>
     </div>
 
     <div class="container" id="settings-screen" style="display:none;">
         <h2>⚙︎ 設定画面 ⚙︎</h2>
-        <p id="lateCountDisplay">遅刻回数: 0</p> <!-- 遅刻回数を表示する要素 -->
+        <p id="lateCountDisplay">遅刻回数: 0</p>
         <button class="logout-btn" onclick="logout()">ログアウト</button>
         <button class="delete-btn" onclick="deleteAccount()">アカウント削除</button>
         <button class="contact-btn" onclick="contactUs()">お問い合わせ</button>
@@ -256,61 +259,60 @@
         <button onclick="goToStudentLogin()">生徒ログイン画面に戻る</button>
     </div>
 
-    <div class="container" id="teacher-register-screen" style="display:none;">
-        <h2>先生新規登録</h2>
-        <input type="text" id="newTeacherUsername" placeholder="先生ユーザー名" />
-        <input type="password" id="newTeacherPassword" placeholder="パスワード" />
-        <button onclick="registerTeacher()">登録</button>
-        <button onclick="goToStudentLogin()">生徒ログイン画面に戻る</button>
-    </div>
- 
     <div class="user-icon-container">
-        <img id="userIcon" src="https://kotonohaworks.com/free-icons/wp-content/uploads/kkrn_icon_user_13.png" alt="ユーザーアイコン" onclick="triggerPhotoUpload()" />
+        <img id="userIcon" src="https://kotonohaworks.com/free-icons/wp-content/uploads/kkrn_icon_user_13.png"
+            alt="ユーザーアイコン" onclick="triggerPhotoUpload()" />
         <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="uploadPhoto()" />
         <button class="settings-btn" onclick="openSettings()">設定</button>
     </div>
- 
+
     <div class="user-info-card" style="display:none;">
-        <img id="userIcon" src="https://kotonohaworks.com/free-icons/wp-content/uploads/kkrn_icon_user_13.png" alt="ユーザーアイコン" />
+        <img id="userIcon" src="https://kotonohaworks.com/free-icons/wp-content/uploads/kkrn_icon_user_13.png"
+            alt="ユーザーアイコン" />
         <div class="user-details">
             <h2 id="loggedInUserDisplay">未設定</h2>
             <p>ログイン中のユーザー</p>
         </div>
     </div>
- 
+
     <script>
+        const baserow = {
+            url:"https://api.baserow.io/api/database/rows/table/685053/",
+            lateurl:"https://api.baserow.io/api/database/rows/table/691308/",
+            token: "Token z8Du55WVQi6wmFT3Ta6diQUSUxCqx8WR"
+            }
         const targetLat = 33.244765;
         const targetLng = 131.62293;
- 
-        function syusseki(){
+
+        function syusseki() {
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-screen").style.display = "block";
             document.getElementById("select-screen").style.display = "none";
- 
+
             getLocation();
- 
+
             const user = localStorage.getItem("loggedInUser");
             if (user) {
                 document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
             }
- 
+
         }
- 
-        function late(){
+
+        function late() {
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-screen").style.display = "none";
             document.getElementById("select-screen").style.display = "none";
             document.getElementById("late-screen").style.display = "block";
- 
+
             getLocation();
- 
+
             const user = localStorage.getItem("loggedInUser");
             if (user) {
                 document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
             }
- 
+
         }
- 
+
         async function hashPassword(password) {
             const enc = new TextEncoder().encode(password);
             const hashBuffer = await crypto.subtle.digest("SHA-256", enc);
@@ -318,15 +320,15 @@
                 .map(b => b.toString(16).padStart(2, "0"))
                 .join("");
         }
- 
+
         function getUsers() {
             return JSON.parse(localStorage.getItem("USERS") || "{}");
         }
- 
+
         function saveUsers(users) {
             localStorage.setItem("USERS", JSON.stringify(users));
         }
- 
+
         async function register() {
             const newUser = document.getElementById("newUsername").value;
             const newPass = document.getElementById("newPassword").value;
@@ -340,7 +342,7 @@
             saveUsers(users);
             alert("登録完了");
         }
- 
+
         async function login() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
@@ -353,59 +355,48 @@
                 alert("ユーザー名またはパスワードが違います");
             }
         }
- 
+
         function showMain() {
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-screen").style.display = "none";
             document.getElementById("select-screen").style.display = "block";
- 
+
             const user = localStorage.getItem("loggedInUser");
             if (user) {
                 document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
-                document.getElementById("loggedInUserDisplay").textContent = `ログイン中のユーザー: ${user}`; // select画面に表示
+                document.getElementById("loggedInUserDisplay").textContent = `ログイン中のユーザー: ${user}`;
             }
 
             updateCurrentTime(); // 時刻を更新
-            setInterval(updateCurrentTime, 1000); // 毎秒時刻を更新
+            setInterval(updateCurrentTime, 1000);
         }
- 
+
         function logout() {
             if (confirm("本当にログアウトしますか？")) {
                 localStorage.removeItem("loggedInUser");
-                localStorage.removeItem("loggedInTeacher"); // 先生のログイン情報も削除
                 location.reload();
             }
         }
- 
+
         function init() {
             const user = localStorage.getItem("loggedInUser");
-            const teacher = localStorage.getItem("loggedInTeacher");
             const userPhoto = localStorage.getItem("userPhoto");
 
+            // ユーザーアイコン反映
             if (userPhoto) {
-                document.getElementById("userIcon").src = userPhoto; // 保存された写真を表示
+                document.getElementById("userIcon").src = userPhoto;
             }
 
-            if (teacher) {
-                document.getElementById("loggedInUserDisplay").textContent = `先生: ${teacher}`; // 先生名を表示
-                document.querySelector(".user-icon-container").style.display = "block"; // ユーザーアイコンと設定ボタンを表示
-                document.getElementById("login-screen").style.display = "none"; // ログイン画面を非表示
-                document.getElementById("teacherselect-screen").style.display = "block"; // 先生管理画面を表示
-                document.getElementById("select-screen").style.display = "none"; // 生徒選択画面を非表示
-            } else if (user) {
-                document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`; // 生徒名を表示
-                document.querySelector(".user-icon-container").style.display = "block"; // ユーザーアイコンと設定ボタンを表示
-                document.getElementById("login-screen").style.display = "none"; // ログイン画面を非表示
-                document.getElementById("select-screen").style.display = "block"; // 生徒選択画面を表示
-                document.getElementById("teacherselect-screen").style.display = "none"; // 先生管理画面を非表示
-            } else {
-                document.querySelector(".user-icon-container").style.display = "none"; // ユーザーアイコンと設定ボタンを非表示
-                document.getElementById("login-screen").style.display = "block"; // ログイン画面を表示
-                document.getElementById("select-screen").style.display = "none"; // 生徒選択画面を非表示
-                document.getElementById("teacherselect-screen").style.display = "none"; // 先生管理画面を非表示
+            // 生徒ログイン時のみ
+            if (user) {
+                document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`;
+                document.querySelector(".user-icon-container").style.display = "block";
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("select-screen").style.display = "block";
             }
         }
- 
+
+
         function calculateDistance(lat1, lng1, lat2, lng2) {
             const R = 6371e3;
             const toRad = Math.PI / 180;
@@ -419,7 +410,7 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c;
         }
- 
+
         function getLocation() {
             if (!navigator.geolocation) {
                 document.querySelector(".output").textContent =
@@ -447,7 +438,7 @@
                 }
             );
         }
- 
+
         function save(statusType) {
             const username = localStorage.getItem("loggedInUser");
             if (!username) {
@@ -459,7 +450,7 @@
             const currentHour = now.getHours();
             const currentMinute = now.getMinutes();
 
-
+            // 時間制限チェック
             if (currentHour < 6 || currentHour > 8 || (currentHour === 8 && currentMinute > 10)) {
                 alert("出席登録は6:00から8:10まで可能です。");
                 return;
@@ -471,7 +462,7 @@
                     const lng = position.coords.longitude;
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
 
-                    // 学校から150m以上離れている場合は登録を禁止
+                    // 学校から200m以上離れている場合は登録禁止
                     if (distance >= 200) {
                         alert("学校外では登録できません。");
                         return;
@@ -484,47 +475,50 @@
                         String(now.getHours()).padStart(2, '0') + ":" +
                         String(now.getMinutes()).padStart(2, '0');
 
+                    // ローカル保存
                     const attendance = JSON.parse(localStorage.getItem("ATTENDANCE") || "[]");
-
                     attendance.push({
                         username: username,
                         status: statusType + "済み",
                         time: timeStr,
                         location: locationText
                     });
-
                     localStorage.setItem("ATTENDANCE", JSON.stringify(attendance));
 
+                    // 画面表示更新
                     document.getElementById("attendanceResult").textContent =
                         `${statusType}完了：${username}（${locationText}・${timeStr}）`;
 
-                   
-                    fetch("https://prod-01.japaneast.logic.azure.com:443/workflows/8838d39a55a34cd6b596c77d01d3041c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=HIq4VSXdHQUvmb1MVAFVnsYVencXJOBleZDoExKHMoo", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            username: username
-                        })
-                    })
-                    .then(res => {
-                        if (res.ok) {
-                            console.log("送信成功");
-                        } else {
-                            console.error("送信エラー:", res.status);
-                        }
-                    })
-                    .catch(error => {
-                        console.error("送信時エラー:", error);
-                    });
+                    // Baserowへ送信
+                    sendMessage(username, timeStr);
                 },
                 error => {
                     alert("位置情報が取得できませんでした: " + error.message);
                 }
             );
         }
- 
+
+        function sendMessage(username, timeStr) {
+            fetch(baserow.url + '?user_field_names=true', {
+                method: 'POST',
+                headers: {
+                    'Authorization': baserow.token,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    Name: username,
+                    Date: timeStr
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Baserow送信成功:', data);
+                })
+                .catch(error => {
+                    console.error('Baserow送信エラー:', error);
+                });
+        }
+
         function savelate(statusType) {
             const username = localStorage.getItem("loggedInUser");
             const reason = document.getElementById("reason").value;
@@ -580,28 +574,7 @@
                     button.textContent = "遅刻登録完了";
                     button.disabled = false;
 
-                    // サーバーにデータを送信
-                    fetch("https://prod-07.japaneast.logic.azure.com:443/workflows/e30f108c25324d62bfa50133e41c47bb/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=d3BzwwA54bqFHmhHwvCPZaXdScGUHJRS8pWwoXx-pds", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            username: username,
-                            reason: reason,
-                            status: statusType + "済み",
-                        })
-                    })
-                    .then(res => {
-                        if (res.ok) {
-                            console.log("送信成功");
-                        } else {
-                            console.error("送信エラー:", res.status);
-                        }
-                    })
-                    .catch(error => {
-                        console.error("送信時エラー:", error);
-                    });
+                    sendlateMessage(username, timeStr,reason);
                 },
                 error => {
                     alert("位置情報が取得できませんでした: " + error.message);
@@ -610,22 +583,42 @@
                 }
             );
         }
- 
- 
- 
+
+        function sendlateMessage(username, timeStr,reason) {
+            fetch(baserow.lateurl + '?user_field_names=true', {
+                method: 'POST',
+                headers: {
+                    'Authorization': baserow.token,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    Name: username,
+                    Date: timeStr,
+                    Time: reason
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Baserow送信成功:', data);
+                })
+                .catch(error => {
+                    console.error('Baserow送信エラー:', error);
+                });
+        }
+
         function deleteAccount() {
             const username = localStorage.getItem("loggedInUser");
             if (!username) {
                 alert("ログインされていません");
                 return;
             }
- 
+
             const users = getUsers();
             if (!users[username]) {
                 alert("アカウントが見つかりません");
                 return;
             }
- 
+
             if (confirm("本当にアカウントを削除しますか？")) {
                 delete users[username];
                 saveUsers(users);
@@ -634,61 +627,58 @@
                 location.reload();
             }
         }
- 
+
         function goBack() {
             document.getElementById("main-screen").style.display = "none";
             document.getElementById("late-screen").style.display = "none";
-            document.getElementById("select-screen").style.display = "block"; // 選択画面に戻る
+            document.getElementById("select-screen").style.display = "block";
         }
- 
+
         function triggerPhotoUpload() {
-            document.getElementById("photoUpload").click(); // ファイル選択ダイアログを開く
+            document.getElementById("photoUpload").click();
         }
- 
+
         function uploadPhoto() {
             const fileInput = document.getElementById("photoUpload");
             const file = fileInput.files[0];
- 
+
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
-                    const photoData = e.target.result; // Base64エンコードされた画像データ
+                    const photoData = e.target.result;
                     document.getElementById("userIcon").src = photoData;
-                    localStorage.setItem("userPhoto", photoData); // ローカルストレージに保存
+                    localStorage.setItem("userPhoto", photoData);
                 };
-                reader.readAsDataURL(file); // ファイルをBase64形式で読み込む
+                reader.readAsDataURL(file);
             }
         }
- 
+
         function init() {
             const user = localStorage.getItem("loggedInUser");
             const teacher = localStorage.getItem("loggedInTeacher");
             const userPhoto = localStorage.getItem("userPhoto");
 
             if (userPhoto) {
-                document.getElementById("userIcon").src = userPhoto; // 保存された写真を表示
+                document.getElementById("userIcon").src = userPhoto;
             }
 
             if (teacher) {
-                document.getElementById("loggedInUserDisplay").textContent = `先生: ${teacher}`; // 先生名を表示
-                document.querySelector(".user-icon-container").style.display = "block"; // ユーザーアイコンと設定ボタンを表示
-                document.getElementById("login-screen").style.display = "none"; // ログイン画面を非表示
-                document.getElementById("teacherselect-screen").style.display = "block"; // 先生管理画面を表示
-                document.getElementById("select-screen").style.display = "none"; // 生徒選択画面を非表示
+                document.getElementById("loggedInUserDisplay").textContent = `先生: ${teacher}`;
+                document.querySelector(".user-icon-container").style.display = "block";
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("select-screen").style.display = "none";
             } else if (user) {
-                document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`; // 生徒名を表示
-                document.querySelector(".user-icon-container").style.display = "block"; // ユーザーアイコンと設定ボタンを表示
-                document.getElementById("login-screen").style.display = "none"; // ログイン画面を非表示
-                document.getElementById("select-screen").style.display = "block"; // 生徒選択画面を表示
-                document.getElementById("teacherselect-screen").style.display = "none"; // 先生管理画面を非表示
+                document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`;
+                document.querySelector(".user-icon-container").style.display = "block";
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("select-screen").style.display = "block";
             } else {
-                document.querySelector(".user-icon-container").style.display = "none"; // ユーザーアイコンと設定ボタンを非表示
-                document.getElementById("login-screen").style.display = "block"; // ログイン画面を表示
-                document.getElementById("select-screen").style.display = "none"; // 生徒選択画面を非表示
-                document.getElementById("teacherselect-screen").style.display = "none"; // 先生管理画面を非表示
+                document.querySelector(".user-icon-container").style.display = "none";
+                document.getElementById("login-screen").style.display = "block";
+                document.getElementById("select-screen").style.display = "none";
             }
         }
- 
+
         function openSettings() {
             updateLateCountDisplay();
             document.getElementById("select-screen").style.display = "none";
@@ -720,15 +710,6 @@
             document.getElementById("lateCountDisplay").textContent = `遅刻回数: ${lateCount}`;
         }
 
-        function goToTeacherLogin() {
-            document.getElementById("login-screen").style.display = "none";
-            document.getElementById("teacher-login-screen").style.display = "block";
-        }
-
-        function goToTeacherRegister() {
-            document.getElementById("login-screen").style.display = "none";
-            document.getElementById("teacher-register-screen").style.display = "block";
-        }
 
         function goToStudentLogin() {
             document.getElementById("teacher-login-screen").style.display = "none";
@@ -736,62 +717,8 @@
             document.getElementById("login-screen").style.display = "block";
         }
 
-        async function teacherLogin() {
-            const username = document.getElementById("teacherUsername").value;
-            const password = document.getElementById("teacherPassword").value;
 
-            if (!username || !password) {
-                alert("ユーザー名とパスワードを入力してください");
-                return;
-            }
-
-            const teachers = getTeachers(); // 先生用のデータを取得
-            const hashed = await hashPassword(password);
-
-            if (teachers[username] && teachers[username] === hashed) {
-                localStorage.setItem("loggedInTeacher", username); // ローカルストレージに先生のログイン情報を保存
-                alert("先生としてログインしました");
-                showTeacherMain(); // 先生用画面を表示
-            } else {
-                alert("ユーザー名またはパスワードが違います");
-            }
-        }
-
-        function getTeachers() {
-            return JSON.parse(localStorage.getItem("TEACHERS") || "{}");
-        }
-
-        function saveTeachers(teachers) {
-            localStorage.setItem("TEACHERS", JSON.stringify(teachers));
-        }
-
-        function showTeacherMain() {
-            document.getElementById("teacher-login-screen").style.display = "none";
-            document.getElementById("teacherselect-screen").style.display = "block";
-            document.getElementById("loggedInUserDisplay").textContent = `先生: ${localStorage.getItem("loggedInTeacher")}`;
-        }
-
-        async function registerTeacher() {
-            const newTeacherUsername = document.getElementById("newTeacherUsername").value;
-            const newTeacherPassword = document.getElementById("newTeacherPassword").value;
-
-            if (!newTeacherUsername || !newTeacherPassword) {
-                alert("ユーザー名とパスワードを入力してください");
-                return;
-            }
-
-            const teachers = getTeachers();
-            if (teachers[newTeacherUsername]) {
-                alert("このユーザー名は既に登録されています");
-                return;
-            }
-
-            const hashed = await hashPassword(newTeacherPassword);
-            teachers[newTeacherUsername] = hashed;
-            saveTeachers(teachers);
-            alert("先生登録が完了しました");
-            goToStudentLogin();
-        }
     </script>
 </body>
+
 </html>
