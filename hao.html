@@ -450,7 +450,6 @@
             const currentHour = now.getHours();
             const currentMinute = now.getMinutes();
 
-            // 時間制限チェック
             if (currentHour < 6 || currentHour > 8 || (currentHour === 8 && currentMinute > 10)) {
                 alert("出席登録は6:00から8:10まで可能です。");
                 return;
@@ -469,11 +468,7 @@
                     }
 
                     const locationText = "学校内";
-                    const timeStr = now.getFullYear() + "-" +
-                        String(now.getMonth() + 1).padStart(2, '0') + "-" +
-                        String(now.getDate()).padStart(2, '0') + " " +
-                        String(now.getHours()).padStart(2, '0') + ":" +
-                        String(now.getMinutes()).padStart(2, '0');
+                    const timeStr = new Date().toLocaleDateString()
 
                     // ローカル保存
                     const attendance = JSON.parse(localStorage.getItem("ATTENDANCE") || "[]");
@@ -547,12 +542,7 @@
 
                     const locationText = "学校内";
                     const now = new Date();
-                    const timeStr = now.getFullYear() + "-" +
-                        String(now.getMonth() + 1).padStart(2, '0') + "-" +
-                        String(now.getDate()).padStart(2, '0') + " " +
-                        String(now.getHours()).padStart(2, '0') + ":" +
-                        String(now.getMinutes()).padStart(2, '0');
-
+                    const timeStr = new Date().toLocaleDateString()
                     const attendance = JSON.parse(localStorage.getItem("ATTENDANCE") || "[]");
 
                     attendance.push({
