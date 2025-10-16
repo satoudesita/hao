@@ -251,13 +251,7 @@
         <button onclick="closeSettings()">戻る</button>
     </div>
 
-    <div class="container" id="teacher-login-screen" style="display:none;">
-        <h2>先生ログイン</h2>
-        <input type="text" id="teacherUsername" placeholder="先生ユーザー名" />
-        <input type="password" id="teacherPassword" placeholder="パスワード" />
-        <button onclick="teacherLogin()">ログイン</button>
-        <button onclick="goToStudentLogin()">生徒ログイン画面に戻る</button>
-    </div>
+    <!-- 先生用ログインは不要のため削除 -->
 
     <div class="user-icon-container">
         <img id="userIcon" src="https://kotonohaworks.com/free-icons/wp-content/uploads/kkrn_icon_user_13.png"
@@ -356,20 +350,7 @@
             }
         }
 
-        function showMain() {
-            document.getElementById("login-screen").style.display = "none";
-            document.getElementById("main-screen").style.display = "none";
-            document.getElementById("select-screen").style.display = "block";
-
-            const user = localStorage.getItem("loggedInUser");
-            if (user) {
-                document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
-                document.getElementById("loggedInUserDisplay").textContent = `ログイン中のユーザー: ${user}`;
-            }
-
-            updateCurrentTime(); // 時刻を更新
-            setInterval(updateCurrentTime, 1000);
-        }
+        // ...existing code... (showMain is implemented elsewhere)
 
         function logout() {
             if (confirm("本当にログアウトしますか？")) {
@@ -378,23 +359,7 @@
             }
         }
 
-        function init() {
-            const user = localStorage.getItem("loggedInUser");
-            const userPhoto = localStorage.getItem("userPhoto");
-
-            // ユーザーアイコン反映
-            if (userPhoto) {
-                document.getElementById("userIcon").src = userPhoto;
-            }
-
-            // 生徒ログイン時のみ
-            if (user) {
-                document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`;
-                document.querySelector(".user-icon-container").style.display = "block";
-                document.getElementById("login-screen").style.display = "none";
-                document.getElementById("select-screen").style.display = "block";
-            }
-        }
+        // ...existing code... (init is defined later)
 
 
         function calculateDistance(lat1, lng1, lat2, lng2) {
@@ -645,19 +610,14 @@
 
         function init() {
             const user = localStorage.getItem("loggedInUser");
-            const teacher = localStorage.getItem("loggedInTeacher");
             const userPhoto = localStorage.getItem("userPhoto");
 
             if (userPhoto) {
                 document.getElementById("userIcon").src = userPhoto;
             }
 
-            if (teacher) {
-                document.getElementById("loggedInUserDisplay").textContent = `先生: ${teacher}`;
-                document.querySelector(".user-icon-container").style.display = "block";
-                document.getElementById("login-screen").style.display = "none";
-                document.getElementById("select-screen").style.display = "none";
-            } else if (user) {
+            // 生徒ログインのみ扱う
+            if (user) {
                 document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`;
                 document.querySelector(".user-icon-container").style.display = "block";
                 document.getElementById("login-screen").style.display = "none";
@@ -701,11 +661,7 @@
         }
 
 
-        function goToStudentLogin() {
-            document.getElementById("teacher-login-screen").style.display = "none";
-            document.getElementById("teacher-register-screen").style.display = "none";
-            document.getElementById("login-screen").style.display = "block";
-        }
+        // 先生用の画面遷移は不要のため削除
 
 
     </script>
