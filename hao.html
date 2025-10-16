@@ -350,7 +350,24 @@
             }
         }
 
-        // ...existing code... (showMain is implemented elsewhere)
+        function showMain() {
+            // ログイン後に選択画面を表示する
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("main-screen").style.display = "none";
+            document.getElementById("select-screen").style.display = "block";
+
+            const user = localStorage.getItem("loggedInUser");
+            if (user) {
+                document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
+                document.getElementById("loggedInUserDisplay").textContent = `ログイン中のユーザー: ${user}`;
+            }
+
+            // 時刻表示を更新
+            if (document.getElementById("currentTime")) {
+                updateCurrentTime();
+                setInterval(updateCurrentTime, 1000);
+            }
+        }
 
         function logout() {
             if (confirm("本当にログアウトしますか？")) {
