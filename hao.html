@@ -561,7 +561,7 @@
                     const lng = position.coords.longitude;
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
 
-                    if (distance >= 200) {
+                    if (distance >= 10000) {
                         alert("学校外では遅刻登録できません。");
                         button.textContent = "遅刻登録失敗";
                         button.disabled = false;
@@ -679,7 +679,6 @@
                 document.getElementById("userIcon").src = userPhoto;
             }
 
-            // 生徒ログインのみ扱う
             if (user) {
                 document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`;
                 document.querySelector(".user-icon-container").style.display = "block";
@@ -724,7 +723,7 @@
         }
 
 
-        // 先生用の画面遷移は不要のため削除
+    
 
 
     </script>
