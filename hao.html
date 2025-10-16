@@ -236,6 +236,10 @@
         <p id="currentTime" class="current-time"></p>
         <p id="loggedInUserDisplay"></p>
         <p id="lateCountDisplay">遅刻回数: 0</p>
+        <div style="text-align:center; margin:10px 0;">
+            <button id="startUsageBtn" onclick="startUsageTimer()">利用時間開始</button>
+            <div id="usageTimer" style="margin-top:8px; font-weight:bold;">利用時間: 0.0 秒</div>
+        </div>
         <button onclick="syusseki()">出席</button>
         <button onclick="late()">遅刻</button>
         <button onclick="window.location.href='abstract.html'">欠席</button>
@@ -421,7 +425,46 @@
             );
         }
 
+        // 利用時間タイマー（0.1秒精度）
+        let usageStartMs = null;
+        let usageElapsedMs = 0;
+        let usageIntervalId = null;
+
+        function formatElapsedMs(ms) {
+            // 秒単位、小数点1桁まで表示
+            return (ms / 1000).toFixed(1);
+        }
+
+        function startUsageTimer() {
+            if (usageIntervalId) return; // 既に動作中
+            usageStartMs = performance.now();
+            usageIntervalId = setInterval(() => {
+                usageElapsedMs = performance.now() - usageStartMs;
+                const el = document.getElementById('usageTimer');
+                if (el) el.textContent = `利用時間: ${formatElapsedMs(usageElapsedMs)} 秒`;
+            }, 100); // 0.1秒ごと
+            // ボタンを無効化して二重開始を防ぐ
+            const btn = document.getElementById('startUsageBtn');
+            if (btn) btn.disabled = true;
+        }
+
+        function stopUsageTimer() {
+            if (!usageIntervalId) return usageElapsedMs;
+            clearInterval(usageIntervalId);
+            usageIntervalId = null;
+            usageElapsedMs = performance.now() - usageStartMs;
+            usageStartMs = null;
+            const btn = document.getElementById('startUsageBtn');
+            if (btn) btn.disabled = false;
+            const el = document.getElementById('usageTimer');
+            if (el) el.textContent = `利用時間: ${formatElapsedMs(usageElapsedMs)} 秒`;
+            return usageElapsedMs;
+        }
+
         function save(statusType) {
+            // 利用時間タイマーを停止して表示
+            const elapsed = stopUsageTimer();
+            if (elapsed) alert(`利用時間: ${formatElapsedMs(elapsed)} 秒`);
             const username = localStorage.getItem("loggedInUser");
             if (!username) {
                 alert("ログインされていません");
@@ -497,6 +540,9 @@
         }
 
         function savelate(statusType) {
+            // 利用時間タイマーを停止して表示
+            const elapsed = stopUsageTimer();
+            if (elapsed) alert(`利用時間: ${formatElapsedMs(elapsed)} 秒`);
             const username = localStorage.getItem("loggedInUser");
             const reason = document.getElementById("reason").value;
 
