@@ -727,11 +727,18 @@
                 localStorage.removeItem("loggedInUser");
 
                 // Baserow の usermanage から該当 Name を削除していく
-                fetch(baserow.usermanageurl + '?user_field_names=true')
-                    .then(res => res.json())
+                fetch(baserow.usermanageurl + '?user_field_names=true', {
+                    headers: { 'Authorization': baserow.token, 'Content-Type': 'application/json' }
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Baserow list fetch failed: ' + res.status);
+                        return res.json();
+                    })
                     .then(data => {
-                        // data は配列のはず。Name フィールドが一致する行を探す
-                        const matches = data.filter(row => row.Name === username);
+                        // Baserow は配列を返す場合とページネーションで {results:[]} を返す場合がある
+                        const rows = Array.isArray(data) ? data : (data.results || []);
+                        // Name フィールドが一致する行を探す
+                        const matches = rows.filter(row => row.Name === username);
                         if (matches.length === 0) {
                             console.log('Baserow usermanage: 該当ユーザーなし');
                             alert('アカウントを削除しました');
