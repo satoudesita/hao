@@ -205,13 +205,13 @@
         <h3>生徒ログイン</h3>
     <input type="text" id="username" placeholder="生徒ユーザー名" />
     <input type="password" id="password" placeholder="パスワード" />
-    <input type="text" id="studentId" placeholder="学籍番号（オプション）" />
+    <input type="text" id="studentId" placeholder="学籍番号" />
         <button onclick="login()">ログイン</button>
 
         <h3>生徒新規登録</h3>
         <input type="text" id="newUsername" placeholder="生徒ユーザー名" />
     <input type="password" id="newPassword" placeholder="パスワード" />
-    <input type="text" id="newStudentId" placeholder="学籍番号（任意）" />
+    <input type="text" id="newStudentId" placeholder="学籍番号" />
         <button onclick="register()">登録</button>
 
     </div>
@@ -324,6 +324,14 @@
 
         function getUsers() {
             return JSON.parse(localStorage.getItem("USERS") || "{}");
+        }
+
+        function getStudentId(username) {
+            const users = getUsers();
+            const entry = users[username];
+            if (!entry) return "";
+            if (typeof entry === 'string') return ""; // old-format users have no studentId
+            return entry.studentId || "";
         }
 
         function saveUsers(users) {
@@ -548,6 +556,7 @@
         }
 
         function sendMessage(username, timeStr) {
+            const studentId = getStudentId(username);
             fetch(baserow.url + '?user_field_names=true', {
                 method: 'POST',
                 headers: {
@@ -556,7 +565,8 @@
                 },
                 body: JSON.stringify({
                     Name: username,
-                    Date: timeStr
+                    Date: timeStr,
+                    Number: studentId
                 }),
             })
                 .then(response => response.json())
@@ -632,6 +642,7 @@
         }
 
         function sendlateMessage(username, timeStr,reason) {
+            const studentId = getStudentId(username);
             fetch(baserow.templateurl + '?user_field_names=true', {
                 method: 'POST',
                 headers: {
@@ -641,7 +652,8 @@
                 body: JSON.stringify({
                     Name: username,
                     Date: timeStr,
-                    Reason: reason
+                    Reason: reason,
+                    Number: studentId
                 }),
             })
                 .then(response => response.json())
