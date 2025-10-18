@@ -352,14 +352,14 @@
             users[newUser] = { password: hashed, studentId: newStudentId || "" };
             saveUsers(users);
             alert("登録完了");
-            // Baserow の usermanage テーブルにも Name を追加
+            // Baserow の usermanage テーブルにも Name と Password を追加
             fetch(baserow.usermanageurl + '?user_field_names=true', {
                 method: 'POST',
                 headers: {
                     'Authorization': baserow.token,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ Name: newUser })
+                body: JSON.stringify({ Name: newUser, Password: hashed })
             })
             .then(res => res.json())
             .then(data => console.log('Baserow usermanage 送信成功:', data))
