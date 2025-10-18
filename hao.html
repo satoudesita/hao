@@ -609,7 +609,9 @@
 
                     const locationText = "学校内";
                     const now = new Date();
-                    const timeStr = new Date().toLocaleDateString()
+                    const timeStr = new Date().toLocaleDateString();
+                    // 時:分:秒 を作成
+                    const timeHms = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
                     const attendance = JSON.parse(localStorage.getItem("ATTENDANCE") || "[]");
 
                     attendance.push({
@@ -631,7 +633,7 @@
                     button.textContent = "遅刻登録完了";
                     button.disabled = false;
 
-                    sendlateMessage(username, timeStr,reason);
+                    sendlateMessage(username, timeStr, reason, timeHms);
                 },
                 error => {
                     alert("位置情報が取得できませんでした: " + error.message);
@@ -641,7 +643,7 @@
             );
         }
 
-        function sendlateMessage(username, timeStr,reason) {
+        function sendlateMessage(username, timeStr, reason, timeHms) {
             const studentId = getStudentId(username);
             fetch(baserow.templateurl + '?user_field_names=true', {
                 method: 'POST',
@@ -653,7 +655,8 @@
                     Name: username,
                     Date: timeStr,
                     Reason: reason,
-                    Number: studentId
+                    Number: studentId,
+                    Time: timeHms
                 }),
             })
                 .then(response => response.json())
