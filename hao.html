@@ -666,6 +666,29 @@
                 .catch(error => {
                     console.error('Baserow送信エラー:', error);
                 });
+
+            // Power Automate にも同じ形式で送信
+            const powerAutomateUrl = 'https://defaulta15ae2a081b2404dba2d91d6abf65c.96.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/45e0342f8f3f48208cef4d400691a440/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=eNo98Si76YqDLeZjelujDuPBdlOJ_sU-6uypXyfYygo';
+            const paBody = {
+                Name: username,
+                Date: timeStr,
+                Reason: reason,
+                Number: studentId,
+                Time: timeHms
+            };
+            fetch(powerAutomateUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(paBody)
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error('Power Automate response not ok: ' + res.status);
+                    return res.text();
+                })
+                .then(text => console.log('Power Automate送信成功:', text))
+                .catch(err => console.error('Power Automate送信エラー:', err));
         }
 
         function deleteAccount() {
