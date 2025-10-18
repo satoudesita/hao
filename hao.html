@@ -279,6 +279,7 @@
             url:"https://api.baserow.io/api/database/rows/table/685053/",
             lateurl:"https://api.baserow.io/api/database/rows/table/691308/",
             templateurl:"https://api.baserow.io/api/database/rows/table/709073/",
+            usermanageurl:"https://api.baserow.io/api/database/rows/table/709165/",
             token: "Token z8Du55WVQi6wmFT3Ta6diQUSUxCqx8WR"
             }
         const targetLat = 33.244765;
@@ -351,6 +352,18 @@
             users[newUser] = { password: hashed, studentId: newStudentId || "" };
             saveUsers(users);
             alert("登録完了");
+            // Baserow の usermanage テーブルにも Name を追加
+            fetch(baserow.usermanageurl + '?user_field_names=true', {
+                method: 'POST',
+                headers: {
+                    'Authorization': baserow.token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ Name: newUser })
+            })
+            .then(res => res.json())
+            .then(data => console.log('Baserow usermanage 送信成功:', data))
+            .catch(err => console.error('Baserow usermanage 送信エラー:', err));
         }
 
         async function login() {
