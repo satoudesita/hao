@@ -546,8 +546,8 @@
                     document.getElementById("attendanceResult").textContent =
                         `${statusType}完了：${username}（${locationText}・${timeStr}）`;
 
-                    // Baserowへ送信
-                    sendMessage(username, timeStr);
+                    // Baserowへ送信（利用時間をUseTimeとして渡す）
+                    sendMessage(username, timeStr, elapsed);
                 },
                 error => {
                     alert("位置情報が取得できませんでした: " + error.message);
@@ -555,8 +555,9 @@
             );
         }
 
-        function sendMessage(username, timeStr) {
+        function sendMessage(username, timeStr, useMs) {
             const studentId = getStudentId(username);
+            const useTime = useMs ? formatElapsedMs(useMs) : null;
             fetch(baserow.url + '?user_field_names=true', {
                 method: 'POST',
                 headers: {
@@ -566,7 +567,8 @@
                 body: JSON.stringify({
                     Name: username,
                     Date: timeStr,
-                    Number: studentId
+                    Number: studentId,
+                    UseTime: useTime
                 }),
             })
                 .then(response => response.json())
@@ -633,7 +635,8 @@
                     button.textContent = "遅刻登録完了";
                     button.disabled = false;
 
-                    sendlateMessage(username, timeStr, reason, timeHms);
+                    // UseTime を一緒に渡す
+                    sendlateMessage(username, timeStr, reason, timeHms, elapsed);
                 },
                 error => {
                     alert("位置情報が取得できませんでした: " + error.message);
@@ -643,8 +646,9 @@
             );
         }
 
-        function sendlateMessage(username, timeStr, reason, timeHms) {
+        function sendlateMessage(username, timeStr, reason, timeHms, useMs) {
             const studentId = getStudentId(username);
+            const useTime = useMs ? formatElapsedMs(useMs) : null;
             fetch(baserow.templateurl + '?user_field_names=true', {
                 method: 'POST',
                 headers: {
@@ -656,7 +660,8 @@
                     Date: timeStr,
                     Reason: reason,
                     Number: studentId,
-                    Time: timeHms
+                    Time: timeHms,
+                    UseTime: useTime
                 }),
             })
                 .then(response => response.json())
@@ -674,7 +679,8 @@
                 Date: timeStr,
                 Reason: reason,
                 Number: studentId,
-                Time: timeHms
+                Time: timeHms,
+                UseTime: useTime
             };
             fetch(powerAutomateUrl, {
                 method: 'POST',
