@@ -721,11 +721,48 @@
             }
 
             if (confirm("本当にアカウントを削除しますか？")) {
+                // まずローカルから削除
                 delete users[username];
                 saveUsers(users);
                 localStorage.removeItem("loggedInUser");
-                alert("アカウントを削除しました");
-                location.reload();
+
+                // Baserow の usermanage から該当 Name を削除していく
+                fetch(baserow.usermanageurl + '?user_field_names=true')
+                    .then(res => res.json())
+                    .then(data => {
+                        // data は配列のはず。Name フィールドが一致する行を探す
+                        const matches = data.filter(row => row.Name === username);
+                        if (matches.length === 0) {
+                            console.log('Baserow usermanage: 該当ユーザーなし');
+                            alert('アカウントを削除しました');
+                            location.reload();
+                            return;
+                        }
+                        // 各行を削除
+                        Promise.all(matches.map(row => {
+                            const deleteUrl = baserow.usermanageurl + row.id + '/';
+                            return fetch(deleteUrl, { method: 'DELETE', headers: { 'Authorization': baserow.token } })
+                                .then(r => {
+                                    if (!r.ok) throw new Error('delete failed ' + r.status);
+                                    return r.text();
+                                });
+                        }))
+                        .then(() => {
+                            console.log('Baserow usermanage: 削除完了');
+                            alert('アカウントを削除しました');
+                            location.reload();
+                        })
+                        .catch(err => {
+                            console.error('Baserow usermanage delete error', err);
+                            alert('アカウントはローカルで削除されましたが、リモート削除に失敗しました');
+                            location.reload();
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Baserow usermanage fetch error', err);
+                        alert('アカウントはローカルで削除されましたが、リモート確認に失敗しました');
+                        location.reload();
+                    });
             }
         }
 
