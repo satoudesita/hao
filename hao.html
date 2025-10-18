@@ -203,13 +203,15 @@
         <h2>ログイン</h2>
 
         <h3>生徒ログイン</h3>
-        <input type="text" id="username" placeholder="生徒ユーザー名" />
-        <input type="password" id="password" placeholder="パスワード" />
+    <input type="text" id="username" placeholder="生徒ユーザー名" />
+    <input type="password" id="password" placeholder="パスワード" />
+    <input type="text" id="studentId" placeholder="学籍番号（オプション）" />
         <button onclick="login()">ログイン</button>
 
         <h3>生徒新規登録</h3>
         <input type="text" id="newUsername" placeholder="生徒ユーザー名" />
-        <input type="password" id="newPassword" placeholder="パスワード" />
+    <input type="password" id="newPassword" placeholder="パスワード" />
+    <input type="text" id="newStudentId" placeholder="学籍番号（任意）" />
         <button onclick="register()">登録</button>
 
     </div>
@@ -255,7 +257,7 @@
         <button onclick="closeSettings()">戻る</button>
     </div>
 
-    <!-- 先生用ログインは不要のため削除 -->
+
 
     <div class="user-icon-container">
         <img id="userIcon" src="https://kotonohaworks.com/free-icons/wp-content/uploads/kkrn_icon_user_13.png"
@@ -277,6 +279,7 @@
         const baserow = {
             url:"https://api.baserow.io/api/database/rows/table/685053/",
             lateurl:"https://api.baserow.io/api/database/rows/table/691308/",
+            templateurl:"https://api.baserow.io/api/database/rows/table/709073/",
             token: "Token z8Du55WVQi6wmFT3Ta6diQUSUxCqx8WR"
             }
         const targetLat = 33.244765;
@@ -330,13 +333,15 @@
         async function register() {
             const newUser = document.getElementById("newUsername").value;
             const newPass = document.getElementById("newPassword").value;
+            const newStudentId = document.getElementById("newStudentId").value;
             const users = getUsers();
             if (users[newUser]) {
                 alert("すでに登録されています");
                 return;
             }
             const hashed = await hashPassword(newPass);
-            users[newUser] = hashed;
+            // ユーザー情報をオブジェクトで保存（password, studentId）
+            users[newUser] = { password: hashed, studentId: newStudentId || "" };
             saveUsers(users);
             alert("登録完了");
         }
@@ -344,18 +349,42 @@
         async function login() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
+            const inputStudentId = document.getElementById("studentId").value;
             const users = getUsers();
             const hashed = await hashPassword(password);
-            if (users[username] && users[username] === hashed) {
-                localStorage.setItem("loggedInUser", username);
-                showMain();
-            } else {
+            const entry = users[username];
+            if (!entry) {
                 alert("ユーザー名またはパスワードが違います");
+                return;
             }
+            // 既存互換：entry が文字列なら旧形式（ハッシュ）
+            if (typeof entry === 'string') {
+                if (entry === hashed) {
+                    // マイグレーション：オブジェクト形式へ変換（studentId は入力があれば採用）
+                    users[username] = { password: entry, studentId: inputStudentId || "" };
+                    saveUsers(users);
+                    localStorage.setItem("loggedInUser", username);
+                    showMain();
+                    return;
+                }
+            } else if (typeof entry === 'object') {
+                if (entry.password === hashed) {
+                    // studentId が入力されていれば保存（任意）
+                    if (inputStudentId && inputStudentId !== entry.studentId) {
+                        entry.studentId = inputStudentId;
+                        users[username] = entry;
+                        saveUsers(users);
+                    }
+                    localStorage.setItem("loggedInUser", username);
+                    showMain();
+                    return;
+                }
+            }
+            alert("ユーザー名またはパスワードが違います");
         }
 
         function showMain() {
-            // ログイン後に選択画面を表示する
+           
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-screen").style.display = "none";
             document.getElementById("select-screen").style.display = "block";
@@ -366,7 +395,7 @@
                 document.getElementById("loggedInUserDisplay").textContent = `ログイン中のユーザー: ${user}`;
             }
 
-            // 時刻表示を更新
+           
             if (document.getElementById("currentTime")) {
                 updateCurrentTime();
                 setInterval(updateCurrentTime, 1000);
@@ -380,7 +409,7 @@
             }
         }
 
-        // ...existing code... (init is defined later)
+        
 
 
         function calculateDistance(lat1, lng1, lat2, lng2) {
@@ -425,24 +454,24 @@
             );
         }
 
-        // 利用時間タイマー（0.1秒精度）
+        
         let usageStartMs = null;
         let usageElapsedMs = 0;
         let usageIntervalId = null;
 
         function formatElapsedMs(ms) {
-            // 秒単位、小数点1桁まで表示
+            
             return (ms / 1000).toFixed(1);
         }
 
         function startUsageTimer() {
-            if (usageIntervalId) return; // 既に動作中
+            if (usageIntervalId) return; 
             usageStartMs = performance.now();
             usageIntervalId = setInterval(() => {
                 usageElapsedMs = performance.now() - usageStartMs;
                 const el = document.getElementById('usageTimer');
                 if (el) el.textContent = `利用時間: ${formatElapsedMs(usageElapsedMs)} 秒`;
-            }, 100); // 0.1秒ごと
+            }, 100); 
             // ボタンを無効化して二重開始を防ぐ
             const btn = document.getElementById('startUsageBtn');
             if (btn) btn.disabled = true;
@@ -603,7 +632,7 @@
         }
 
         function sendlateMessage(username, timeStr,reason) {
-            fetch(baserow.lateurl + '?user_field_names=true', {
+            fetch(baserow.templateurl + '?user_field_names=true', {
                 method: 'POST',
                 headers: {
                     'Authorization': baserow.token,
