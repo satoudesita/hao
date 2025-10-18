@@ -501,7 +501,6 @@
         function save(statusType) {
             // 利用時間タイマーを停止して表示
             const elapsed = stopUsageTimer();
-            if (elapsed) alert(`利用時間: ${formatElapsedMs(elapsed)} 秒`);
             const username = localStorage.getItem("loggedInUser");
             if (!username) {
                 alert("ログインされていません");
@@ -581,9 +580,8 @@
         }
 
         function savelate(statusType) {
-            // 利用時間タイマーを停止して表示
+            // 利用時間タイマーを停止（alert は表示しない）
             const elapsed = stopUsageTimer();
-            if (elapsed) alert(`利用時間: ${formatElapsedMs(elapsed)} 秒`);
             const username = localStorage.getItem("loggedInUser");
             const reason = document.getElementById("reason").value;
 
