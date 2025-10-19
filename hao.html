@@ -339,14 +339,42 @@
         }
 
         async function register() {
-            const newUser = document.getElementById("newUsername").value;
-            const newPass = document.getElementById("newPassword").value;
+            let newUser = document.getElementById("newUsername").value;
+            let newPass = document.getElementById("newPassword").value;
             const newStudentId = document.getElementById("newStudentId").value;
-            const users = getUsers();
-            if (users[newUser]) {
-                alert("すでに登録されています");
+            // 空白のみや未入力を防ぐ（前後の空白を削除して判定）
+            newUser = newUser ? newUser.trim() : "";
+            newPass = newPass ? newPass.trim() : "";
+            if (!newUser || !newPass) {
+                alert("生徒ユーザー名とパスワードは必須です（空白は許可されません）");
                 return;
             }
+
+            const users = getUsers();
+            if (users[newUser]) {
+                alert("すでにローカルに登録されています");
+                return;
+            }
+
+            // Baserow に同名の Name があるか確認
+            try {
+                const res = await fetch(baserow.usermanageurl + '?user_field_names=true', {
+                    headers: { 'Authorization': baserow.token, 'Content-Type': 'application/json' }
+                });
+                if (!res.ok) throw new Error('Baserow fetch failed: ' + res.status);
+                const data = await res.json();
+                const rows = Array.isArray(data) ? data : (data.results || []);
+                const duplicate = rows.some(row => row.Name === newUser);
+                if (duplicate) {
+                    alert("同じユーザー名が存在します。登録できません。");
+                    return;
+                }
+            } catch (err) {
+                console.error('Baserow usermanage fetch error', err);
+                alert("リモート確認に失敗しました。後でもう一度お試しください。");
+                return;
+            }
+
             const hashed = await hashPassword(newPass);
             // ユーザー情報をオブジェクトで保存（password, studentId）
             users[newUser] = { password: hashed, studentId: newStudentId || "" };
@@ -372,35 +400,46 @@
             const inputStudentId = document.getElementById("studentId").value;
             const users = getUsers();
             const hashed = await hashPassword(password);
-            const entry = users[username];
-            if (!entry) {
-                alert("ユーザー名またはパスワードが違います");
+
+            // Baserow の usermanage テーブルで Name と Password を照合（リモート必須）
+            try {
+                const res = await fetch(baserow.usermanageurl + '?user_field_names=true', {
+                    headers: { 'Authorization': baserow.token, 'Content-Type': 'application/json' }
+                });
+                if (!res.ok) throw new Error('Baserow fetch failed: ' + res.status);
+                const data = await res.json();
+                const rows = Array.isArray(data) ? data : (data.results || []);
+                // Name と Password（ハッシュ）両方一致する行を探す
+                const remoteMatch = rows.find(r => r.Name === username && r.Password === hashed);
+                if (!remoteMatch) {
+                    alert("ユーザー名またはパスワードが違います（リモート認証）");
+                    return;
+                }
+            } catch (err) {
+                console.error('Baserow usermanage fetch error', err);
+                alert("リモート確認に失敗しました。後でもう一度お試しください。");
                 return;
             }
-            // 既存互換：entry が文字列なら旧形式（ハッシュ）
-            if (typeof entry === 'string') {
-                if (entry === hashed) {
-                    // マイグレーション：オブジェクト形式へ変換（studentId は入力があれば採用）
-                    users[username] = { password: entry, studentId: inputStudentId || "" };
-                    saveUsers(users);
-                    localStorage.setItem("loggedInUser", username);
-                    showMain();
-                    return;
-                }
-            } else if (typeof entry === 'object') {
-                if (entry.password === hashed) {
-                    // studentId が入力されていれば保存（任意）
-                    if (inputStudentId && inputStudentId !== entry.studentId) {
-                        entry.studentId = inputStudentId;
-                        users[username] = entry;
-                        saveUsers(users);
-                    }
-                    localStorage.setItem("loggedInUser", username);
-                    showMain();
-                    return;
-                }
+
+            // リモート認証が成功したのでローカルを更新してログインさせる
+            const localEntry = users[username];
+            if (!localEntry) {
+                users[username] = { password: hashed, studentId: inputStudentId || "" };
+                saveUsers(users);
+            } else if (typeof localEntry === 'string') {
+                // 旧形式からオブジェクト形式へマイグレーション
+                users[username] = { password: localEntry, studentId: inputStudentId || "" };
+                saveUsers(users);
+            } else if (typeof localEntry === 'object') {
+                // パスワードが異なれば上書き、学籍番号が入力されていれば保存
+                if (localEntry.password !== hashed) localEntry.password = hashed;
+                if (inputStudentId && inputStudentId !== localEntry.studentId) localEntry.studentId = inputStudentId;
+                users[username] = localEntry;
+                saveUsers(users);
             }
-            alert("ユーザー名またはパスワードが違います");
+
+            localStorage.setItem("loggedInUser", username);
+            showMain();
         }
 
         function showMain() {
@@ -857,3 +896,4 @@
 </body>
 
 </html>
+
