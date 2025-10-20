@@ -196,7 +196,6 @@
             margin-top: 10px;
         }
 
-        /* クリック後にグレー化する見た目 */
         button.disabled-button {
             background-color: #9e9e9e !important;
             color: #ffffff !important;
@@ -355,7 +354,7 @@
             const users = getUsers();
             const entry = users[username];
             if (!entry) return "";
-            if (typeof entry === 'string') return ""; // old-format users have no studentId
+            if (typeof entry === 'string') return ""; 
             return entry.studentId || "";
         }
 
@@ -367,7 +366,7 @@
             let newUser = document.getElementById("newUsername").value;
             let newPass = document.getElementById("newPassword").value;
             const newStudentId = document.getElementById("newStudentId").value;
-            // 空白のみや未入力を防ぐ（前後の空白を削除して判定）
+           
             newUser = newUser ? newUser.trim() : "";
             newPass = newPass ? newPass.trim() : "";
             if (!newUser || !newPass) {
@@ -401,11 +400,10 @@
             }
 
             const hashed = await hashPassword(newPass);
-            // ユーザー情報をオブジェクトで保存（password, studentId）
             users[newUser] = { password: hashed, studentId: newStudentId || "" };
             saveUsers(users);
             alert("登録完了");
-            // Baserow の usermanage テーブルにも Name と Password を追加
+            // Baserow の usermanage テーブルに Name と Password を追加
             fetch(baserow.usermanageurl + '?user_field_names=true', {
                 method: 'POST',
                 headers: {
@@ -426,7 +424,7 @@
             const users = getUsers();
             const hashed = await hashPassword(password);
 
-            // Baserow の usermanage テーブルで Name と Password を照合（リモート必須）
+            // Baserow の usermanage テーブルで Name と Password を照合
             try {
                 const res = await fetch(baserow.usermanageurl + '?user_field_names=true', {
                     headers: { 'Authorization': baserow.token, 'Content-Type': 'application/json' }
@@ -446,17 +444,13 @@
                 return;
             }
 
-            // リモート認証が成功したのでローカルを更新してログインさせる
             const localEntry = users[username];
             if (!localEntry) {
                 users[username] = { password: hashed, studentId: inputStudentId || "" };
                 saveUsers(users);
             } else if (typeof localEntry === 'string') {
-                // 旧形式からオブジェクト形式へマイグレーション
                 users[username] = { password: localEntry, studentId: inputStudentId || "" };
                 saveUsers(users);
-            } else if (typeof localEntry === 'object') {
-                // パスワードが異なれば上書き、学籍番号が入力されていれば保存
                 if (localEntry.password !== hashed) localEntry.password = hashed;
                 if (inputStudentId && inputStudentId !== localEntry.studentId) localEntry.studentId = inputStudentId;
                 users[username] = localEntry;
@@ -556,9 +550,9 @@
             usageStartMs = performance.now();
             usageIntervalId = setInterval(() => {
                 usageElapsedMs = performance.now() - usageStartMs;
-                // 表示は不要なので DOM 更新は行わない（内部で計測だけ行う）
+               
             }, 100);
-            // ボタン状態更新：開始ボタンを無効化、出席/遅刻を有効化
+           
             const btn = document.getElementById('startUsageBtn');
             if (btn) {
                 btn.disabled = true;
@@ -569,13 +563,13 @@
             if (attendBtn) attendBtn.disabled = false;
             if (lateBtn) lateBtn.disabled = false;
 
-            // 開始時の通知
+           
             alert("利用時間タイマーを開始しました");
         }
 
         function stopUsageTimer() {
             if (!usageIntervalId) {
-                // タイマーが未開始の場合は 0 を返す（呼び出し元で扱いやすいように）
+              
                 alert("利用時間は開始されていません");
                 return 0;
             }
@@ -583,7 +577,7 @@
             usageIntervalId = null;
             usageElapsedMs = performance.now() - usageStartMs;
             usageStartMs = null;
-            // ボタン状態更新：開始ボタンを再度有効化、出席/遅刻を無効化
+           
             const btn = document.getElementById('startUsageBtn');
             if (btn) {
                 btn.disabled = false;
@@ -593,14 +587,14 @@
             const lateBtn = document.getElementById('lateBtn');
             if (attendBtn) attendBtn.disabled = true;
             if (lateBtn) lateBtn.disabled = true;
-            // 利用時間の最終値は内部で保持（表示は不要）だが停止時に通知
+           
             const secs = formatElapsedMs(usageElapsedMs);
             alert(`利用時間タイマーを停止しました`);
             return usageElapsedMs;
         }
 
         function save(statusType) {
-            // ボタンをグレー化して登録中表示
+         
             const mainBtn = document.getElementById('saveAttendanceBtn');
             if (mainBtn) {
                 mainBtn.textContent = "登録中...";
@@ -608,7 +602,7 @@
                 mainBtn.classList.add('disabled-button');
             }
 
-            // 利用時間タイマーを停止して表示
+           
             const elapsed = stopUsageTimer();
             const username = localStorage.getItem("loggedInUser");
             if (!username) {
@@ -641,8 +635,8 @@
                     const lng = position.coords.longitude;
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
 
-                    // 学校から200m以上離れている場合は登録禁止
-                    if (distance >= 200) {
+                  
+                    if (distance >= 300) {
                         alert("学校外では登録できません。");
                         if (mainBtn) {
                             mainBtn.textContent = "出席登録";
@@ -665,16 +659,16 @@
                     });
                     localStorage.setItem("ATTENDANCE", JSON.stringify(attendance));
 
-                    // 画面表示更新
+                   
                     document.getElementById("attendanceResult").textContent =
                         `${statusType}完了：${username}（${locationText}・${timeStr}）`;
 
-                    // ユーザー要求に合わせて、利用時間が開始されていなければ warn（念のため）
+                   
                     if (!elapsed || elapsed === 0) {
                         alert("利用時間が記録されていませんでした（0秒として送信します）");
                     }
 
-                    // ボタンを完了表示（グレーのまま維持）
+                  
                     if (mainBtn) {
                         mainBtn.textContent = "出席登録完了";
                         mainBtn.disabled = true;
@@ -721,7 +715,7 @@
         }
 
         function savelate(statusType) {
-            // ボタンをグレー化して登録中表示
+           
             const button = document.getElementById("saveLateBtn");
             if (button) {
                 button.textContent = "登録中...";
@@ -729,7 +723,7 @@
                 button.classList.add('disabled-button');
             }
 
-            // 利用時間タイマーを停止（alert は stopUsageTimer 内で行う）
+           
             const elapsed = stopUsageTimer();
             const username = localStorage.getItem("loggedInUser");
             const reason = document.getElementById("reason").value;
@@ -750,7 +744,7 @@
                     const lng = position.coords.longitude;
                     const distance = calculateDistance(lat, lng, targetLat, targetLng);
 
-                    if (distance >= 10000) {
+                    if (distance >= 300) {
                         alert("学校外では遅刻登録できません。");
                         if (button) {
                             button.textContent = "遅刻登録失敗";
@@ -783,14 +777,14 @@
                     document.getElementById("attendanceResult").textContent =
                         `${statusType}完了：${username}（${locationText}・${timeStr}・理由：${reason}）`;
 
-                    // 完了表示：グレー化して無効のままにする
+                   
                     if (button) {
                         button.textContent = "遅刻登録完了";
                         button.disabled = true;
                         button.classList.add('disabled-button');
                     }
 
-                    // UseTime を一緒に渡す
+                   
                     sendlateMessage(username, timeStr, reason, timeHms, elapsed);
                 },
                 error => {
@@ -883,7 +877,7 @@
                         return res.json();
                     })
                     .then(data => {
-                        // Baserow は配列を返す場合とページネーションで {results:[]} を返す場合がある
+                    
                         const rows = Array.isArray(data) ? data : (data.results || []);
                         // Name フィールドが一致する行を探す
                         const matches = rows.filter(row => row.Name === username);
@@ -893,7 +887,7 @@
                             location.reload();
                             return;
                         }
-                        // 各行を削除
+                      
                         Promise.all(matches.map(row => {
                             const deleteUrl = baserow.usermanageurl + row.id + '/';
                             return fetch(deleteUrl, { method: 'DELETE', headers: { 'Authorization': baserow.token } })
@@ -954,7 +948,7 @@
                 document.getElementById("userIcon").src = userPhoto;
             }
 
-            // 初期状態で出席/遅刻ボタンは有効にしておく（押したら利用時間未開始のアラートが出る）
+           
             const attendBtn = document.getElementById('attendanceBtn');
             const lateBtn = document.getElementById('lateBtn');
             if (attendBtn) attendBtn.disabled = false;
