@@ -195,6 +195,19 @@
             color: #d32f2f;
             margin-top: 10px;
         }
+
+        /* クリック後にグレー化する見た目 */
+        button.disabled-button {
+            background-color: #9e9e9e !important;
+            color: #ffffff !important;
+            cursor: default;
+            box-shadow: none;
+        }
+
+        button.disabled-button:hover,
+        button[disabled]:hover {
+            background-color: #9e9e9e !important;
+        }
     </style>
 </head>
 
@@ -203,22 +216,24 @@
         <h2>ログイン</h2>
 
         <h3>生徒ログイン</h3>
-    <input type="text" id="username" placeholder="生徒ユーザー名" />
-    <input type="password" id="password" placeholder="パスワード" />
+    <input type="text" id="username" placeholder="生徒本名" />
     <input type="text" id="studentId" placeholder="学籍番号" />
+    <input type="password" id="password" placeholder="パスワード" />
+    
         <button onclick="login()">ログイン</button>
 
         <h3>生徒新規登録</h3>
-        <input type="text" id="newUsername" placeholder="生徒ユーザー名" />
+        <input type="text" id="newUsername" placeholder="生徒本名" />
+        <input type="text" id="newStudentId" placeholder="学籍番号" />
     <input type="password" id="newPassword" placeholder="パスワード" />
-    <input type="text" id="newStudentId" placeholder="学籍番号" />
+    
         <button onclick="register()">登録</button>
 
     </div>
 
     <div class="container" id="main-screen" style="display:none;">
         <h2>出席確認(8:10まで)</h2>
-        <button onclick="save('出席')">出席登録</button>
+        <button id="saveAttendanceBtn" onclick="save('出席')">出席登録</button>
         <p id="attendanceResult"></p>
         <p class="output">位置情報を取得中...</p>
         <button onclick="goBack()">戻る</button>
@@ -227,7 +242,7 @@
     <div class="container" id="late-screen" style="display:none;">
         <h2>遅刻確認(8:10から)</h2>
         <input type="text" id="reason" placeholder="理由" />
-        <button onclick="savelate('遅刻')">遅刻登録</button>
+        <button id="saveLateBtn" onclick="savelate('遅刻')">遅刻登録</button>
         <p id="attendanceResult"></p>
         <p class="output1">位置情報を取得中...</p>
         <button onclick="goBack()">戻る</button>
@@ -240,10 +255,10 @@
         <p id="lateCountDisplay">遅刻回数: 0</p>
         <div style="text-align:center; margin:10px 0;">
             <button id="startUsageBtn" onclick="startUsageTimer()">利用時間開始</button>
-            <div id="usageTimer" style="margin-top:8px; font-weight:bold;">利用時間: 0.0 秒</div>
+            <div id="usageTimer" style="display:none; margin-top:8px; font-weight:bold;">利用時間: 0.0 秒</div>
         </div>
-    <button onclick="syusseki()">出席</button>
-    <button onclick="late()">遅刻</button>
+    <button id="attendanceBtn" onclick="syusseki()">出席</button>
+    <button id="lateBtn" onclick="late()">遅刻</button>
         <p id="attendanceResult"></p>
     </div>
 
@@ -286,6 +301,12 @@
         const targetLng = 131.62293;
 
         function syusseki() {
+            // 利用時間が開始されているか確認
+            if (!usageIntervalId) {
+                alert("利用時間を開始してください（「利用時間開始」ボタンを押してください）");
+                return;
+            }
+
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-screen").style.display = "block";
             document.getElementById("select-screen").style.display = "none";
@@ -296,10 +317,15 @@
             if (user) {
                 document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
             }
-
         }
 
         function late() {
+            // 利用時間が開始されているか確認
+            if (!usageIntervalId) {
+                alert("利用時間を開始してください（「利用時間開始」ボタンを押してください）");
+                return;
+            }
+
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-screen").style.display = "none";
             document.getElementById("select-screen").style.display = "none";
@@ -311,7 +337,6 @@
             if (user) {
                 document.getElementById("attendanceResult").textContent = `ログイン中のユーザー: ${user}`;
             }
-
         }
 
         async function hashPassword(password) {
@@ -524,37 +549,75 @@
         }
 
         function startUsageTimer() {
-            if (usageIntervalId) return; 
+            if (usageIntervalId) {
+                alert("利用時間は既に開始されています");
+                return;
+            }
             usageStartMs = performance.now();
             usageIntervalId = setInterval(() => {
                 usageElapsedMs = performance.now() - usageStartMs;
-                const el = document.getElementById('usageTimer');
-                if (el) el.textContent = `利用時間: ${formatElapsedMs(usageElapsedMs)} 秒`;
-            }, 100); 
-            // ボタンを無効化して二重開始を防ぐ
+                // 表示は不要なので DOM 更新は行わない（内部で計測だけ行う）
+            }, 100);
+            // ボタン状態更新：開始ボタンを無効化、出席/遅刻を有効化
             const btn = document.getElementById('startUsageBtn');
-            if (btn) btn.disabled = true;
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = "利用中";
+            }
+            const attendBtn = document.getElementById('attendanceBtn');
+            const lateBtn = document.getElementById('lateBtn');
+            if (attendBtn) attendBtn.disabled = false;
+            if (lateBtn) lateBtn.disabled = false;
+
+            // 開始時の通知
+            alert("利用時間タイマーを開始しました");
         }
 
         function stopUsageTimer() {
-            if (!usageIntervalId) return usageElapsedMs;
+            if (!usageIntervalId) {
+                // タイマーが未開始の場合は 0 を返す（呼び出し元で扱いやすいように）
+                alert("利用時間は開始されていません");
+                return 0;
+            }
             clearInterval(usageIntervalId);
             usageIntervalId = null;
             usageElapsedMs = performance.now() - usageStartMs;
             usageStartMs = null;
+            // ボタン状態更新：開始ボタンを再度有効化、出席/遅刻を無効化
             const btn = document.getElementById('startUsageBtn');
-            if (btn) btn.disabled = false;
-            const el = document.getElementById('usageTimer');
-            if (el) el.textContent = `利用時間: ${formatElapsedMs(usageElapsedMs)} 秒`;
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = "利用時間開始";
+            }
+            const attendBtn = document.getElementById('attendanceBtn');
+            const lateBtn = document.getElementById('lateBtn');
+            if (attendBtn) attendBtn.disabled = true;
+            if (lateBtn) lateBtn.disabled = true;
+            // 利用時間の最終値は内部で保持（表示は不要）だが停止時に通知
+            const secs = formatElapsedMs(usageElapsedMs);
+            alert(`利用時間タイマーを停止しました`);
             return usageElapsedMs;
         }
 
         function save(statusType) {
+            // ボタンをグレー化して登録中表示
+            const mainBtn = document.getElementById('saveAttendanceBtn');
+            if (mainBtn) {
+                mainBtn.textContent = "登録中...";
+                mainBtn.disabled = true;
+                mainBtn.classList.add('disabled-button');
+            }
+
             // 利用時間タイマーを停止して表示
             const elapsed = stopUsageTimer();
             const username = localStorage.getItem("loggedInUser");
             if (!username) {
                 alert("ログインされていません");
+                if (mainBtn) {
+                    mainBtn.textContent = "出席登録";
+                    mainBtn.disabled = false;
+                    mainBtn.classList.remove('disabled-button');
+                }
                 return;
             }
 
@@ -564,6 +627,11 @@
 
             if (currentHour < 6 || currentHour > 8 || (currentHour === 8 && currentMinute > 10)) {
                 alert("出席登録は6:00から8:10まで可能です。");
+                if (mainBtn) {
+                    mainBtn.textContent = "出席登録";
+                    mainBtn.disabled = false;
+                    mainBtn.classList.remove('disabled-button');
+                }
                 return;
             }
 
@@ -576,6 +644,11 @@
                     // 学校から200m以上離れている場合は登録禁止
                     if (distance >= 200) {
                         alert("学校外では登録できません。");
+                        if (mainBtn) {
+                            mainBtn.textContent = "出席登録";
+                            mainBtn.disabled = false;
+                            mainBtn.classList.remove('disabled-button');
+                        }
                         return;
                     }
 
@@ -596,11 +669,28 @@
                     document.getElementById("attendanceResult").textContent =
                         `${statusType}完了：${username}（${locationText}・${timeStr}）`;
 
+                    // ユーザー要求に合わせて、利用時間が開始されていなければ warn（念のため）
+                    if (!elapsed || elapsed === 0) {
+                        alert("利用時間が記録されていませんでした（0秒として送信します）");
+                    }
+
+                    // ボタンを完了表示（グレーのまま維持）
+                    if (mainBtn) {
+                        mainBtn.textContent = "出席登録完了";
+                        mainBtn.disabled = true;
+                        mainBtn.classList.add('disabled-button');
+                    }
+
                     // Baserowへ送信（利用時間をUseTimeとして渡す）
                     sendMessage(username, timeStr, elapsed);
                 },
                 error => {
                     alert("位置情報が取得できませんでした: " + error.message);
+                    if (mainBtn) {
+                        mainBtn.textContent = "出席登録";
+                        mainBtn.disabled = false;
+                        mainBtn.classList.remove('disabled-button');
+                    }
                 }
             );
         }
@@ -631,19 +721,28 @@
         }
 
         function savelate(statusType) {
-            // 利用時間タイマーを停止（alert は表示しない）
+            // ボタンをグレー化して登録中表示
+            const button = document.getElementById("saveLateBtn");
+            if (button) {
+                button.textContent = "登録中...";
+                button.disabled = true;
+                button.classList.add('disabled-button');
+            }
+
+            // 利用時間タイマーを停止（alert は stopUsageTimer 内で行う）
             const elapsed = stopUsageTimer();
             const username = localStorage.getItem("loggedInUser");
             const reason = document.getElementById("reason").value;
 
             if (!username) {
                 alert("ログインされていません");
+                if (button) {
+                    button.textContent = "遅刻登録";
+                    button.disabled = false;
+                    button.classList.remove('disabled-button');
+                }
                 return;
             }
-
-            const button = document.querySelector("#late-screen button");
-            button.textContent = "登録中...";
-            button.disabled = true;
 
             navigator.geolocation.getCurrentPosition(
                 position => {
@@ -653,8 +752,11 @@
 
                     if (distance >= 10000) {
                         alert("学校外では遅刻登録できません。");
-                        button.textContent = "遅刻登録失敗";
-                        button.disabled = false;
+                        if (button) {
+                            button.textContent = "遅刻登録失敗";
+                            button.disabled = false;
+                            button.classList.remove('disabled-button');
+                        }
                         return;
                     }
 
@@ -681,16 +783,23 @@
                     document.getElementById("attendanceResult").textContent =
                         `${statusType}完了：${username}（${locationText}・${timeStr}・理由：${reason}）`;
 
-                    button.textContent = "遅刻登録完了";
-                    button.disabled = false;
+                    // 完了表示：グレー化して無効のままにする
+                    if (button) {
+                        button.textContent = "遅刻登録完了";
+                        button.disabled = true;
+                        button.classList.add('disabled-button');
+                    }
 
                     // UseTime を一緒に渡す
                     sendlateMessage(username, timeStr, reason, timeHms, elapsed);
                 },
                 error => {
                     alert("位置情報が取得できませんでした: " + error.message);
-                    button.textContent = "遅刻登録失敗";
-                    button.disabled = false;
+                    if (button) {
+                        button.textContent = "遅刻登録失敗";
+                        button.disabled = false;
+                        button.classList.remove('disabled-button');
+                    }
                 }
             );
         }
@@ -845,6 +954,12 @@
                 document.getElementById("userIcon").src = userPhoto;
             }
 
+            // 初期状態で出席/遅刻ボタンは有効にしておく（押したら利用時間未開始のアラートが出る）
+            const attendBtn = document.getElementById('attendanceBtn');
+            const lateBtn = document.getElementById('lateBtn');
+            if (attendBtn) attendBtn.disabled = false;
+            if (lateBtn) lateBtn.disabled = false;
+
             if (user) {
                 document.getElementById("loggedInUserDisplay").textContent = `生徒: ${user}`;
                 document.querySelector(".user-icon-container").style.display = "block";
@@ -896,4 +1011,6 @@
 </body>
 
 </html>
+
+
 
